@@ -1,0 +1,27 @@
+---
+title: "<center><b>Some Title</b></center>"
+author: "<center><b>Some Author</b></center>"
+output:
+  html_document:
+    toc: yes
+  html_notebook:
+    toc: yes
+---
+<center>![bird](bird.png)</center>
+
+#**Introduction**
+Some introduction.
+
+#**R Configuration**
+Below we display our sessionInfo().
+
+```{r sessionInfo}
+sessionInfo(package=NULL)
+```
+
+#**The Data**
+
+```{r}
+source("../01 RESTful Data Access/Access data.world Database.R")
+```
+
