@@ -2,8 +2,6 @@
 title: "<center><b>Some Title</b></center>"
 author: "<center><b>Some Author</b></center>"
 output:
-  html_document:
-    toc: yes
   html_notebook:
     toc: yes
 ---
