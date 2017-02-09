@@ -6,7 +6,7 @@ options(java.parameters="-Xmx2g")
 '
 Grammar of Graphics Example:
 ggplot(data = diamonds) +
-   geom_point(aes(x=cut, y=price, color=color)) +
+   geom_point(aes(x=cut, y=price, color=as.character(carat))) +
    #facet_grid(~clarity) +
    #facet_grid(clarity~cut, labeller=label_both) +
    #theme_classic() +
@@ -16,8 +16,10 @@ ggplot(data = diamonds) +
 
 Another Example:
 x=c(1,2,3,4,5); y=x*2; z=x^3; df = data.frame(x,y,z)
-ggplot() + geom_point(aes(x=x, y=y))
-ggplot() + geom_point(aes(x=x, y=z))
-tidyr::gather(df, variable, value, -x) %>% ggplot() + geom_point(aes(x=x, y=value, color = variable))
+ggplot(data=df) + geom_point(aes(x=x, y=y))
+ggplot(data=df) + geom_point(aes(x=x, y=z))
+tidyr::gather(df, variable, value, -x) %>% ggplot() + geom_point(aes(x=x, y=value, color = variable, size=4)) + geom_line(aes(x=x, y=value, color = variable))
 '
 
+x=c(1,2,3,4,5); y=x*2; z=x^3; df = data.frame(x,y,z)
+tidyr::gather(df, variable, value, -x) %>% ggplot() + geom_point(aes(x=x, y=value, color = variable, size=4)) + geom_line(aes(x=x, y=value, color = variable))
