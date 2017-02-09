@@ -23,7 +23,7 @@ ggplot_func <- function(df,
     print(names(df))
     
     p1 <- ggplot(df) + 
-      geom_point(aes(x=carat, y=price, color=Legend)) +
+      geom_point(aes(x=carat, y=price, colour=Legend)) +
       ylim(YMin, YMax) + xlim(XMin, XMax) +
       scale_colour_manual(values = PointColor) +
       labs(title="Grammar of Graphics Example", x = paste("carat\nFigure ", FigureNum), colour = Legend, caption = Caption) +
