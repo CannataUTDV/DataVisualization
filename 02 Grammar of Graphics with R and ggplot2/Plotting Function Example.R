@@ -13,10 +13,7 @@ ggplot_func <- function(df,
   FigNumOffset = 0
 ) {
   
-    if(FigNum != -1) FigNum = FigNum
-    else FigNum = {
-      FigureNum <<- FigureNum + 1
-    }
+    FigureNum <<- FigureNum + 1
     
     # See http://stackoverflow.com/questions/32503843/using-a-function-parameter-in-ggplot-mapping-aes for a discussion of the following line of code:
     names(df)[names(df) == Legend] <- 'Legend'
