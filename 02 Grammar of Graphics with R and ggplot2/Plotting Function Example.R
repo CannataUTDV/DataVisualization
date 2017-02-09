@@ -1,3 +1,7 @@
+require(tidyr)
+require(dplyr)
+require(ggplot2)
+
 FigureNum <<- 0 # Global variable
 
 ggplot_func <- function(df,
@@ -16,7 +20,6 @@ ggplot_func <- function(df,
   FigNum = -1,
   FigNumOffset = 0
 ) {
-  
     FigureNum <<- FigureNum + 1
     
     # See http://stackoverflow.com/questions/32503843/using-a-function-parameter-in-ggplot-mapping-aes for a discussion of the following line of code:
