@@ -21,5 +21,7 @@ ggplot(data=df) + geom_point(aes(x=x, y=z))
 tidyr::gather(df, variable, value, -x) %>% ggplot() + geom_point(aes(x=x, y=value, color = variable, size=4)) + geom_line(aes(x=x, y=value, color = variable))
 '
 
+# Run an example:
 x=c(1,2,3,4,5); y=x*2; z=x^3; df = data.frame(x,y,z)
-tidyr::gather(df, variable, value, -x) %>% ggplot() + geom_point(aes(x=x, y=value, color = variable, size=4)) + geom_line(aes(x=x, y=value, color = variable))
+plot = tidyr::gather(df, variable, value, -x) %>% ggplot() + geom_point(aes(x=x, y=value, color = variable, size=4)) + geom_line(aes(x=x, y=value, color = variable))
+print(plot)

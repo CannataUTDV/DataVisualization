@@ -23,3 +23,8 @@ sessionInfo(package=NULL)
 source("../01 RESTful Data Access/Access data.world Database.R")
 ```
 
+
+```{r}
+source("../02 Grammar of Graphics with R and ggplot2/Grammar Examples.R")
+```
+
