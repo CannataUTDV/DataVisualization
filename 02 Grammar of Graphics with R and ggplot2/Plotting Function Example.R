@@ -3,7 +3,11 @@ FigureNum <<- 0 # Global variable
 ggplot_func <- function(df,
   Title = "Diamonds",
   Legend = "color",   # Notice how this is handled below using names(df)[names(df) == Legend] <- 'Legend'
-  PointColor = c("red", "blue", "green", "yellow", "grey", "black", "purple"),
+  PointColor = c("red4", "darkslategray3", "dodgerblue1", "darkcyan",
+                 "gray79", "black", "skyblue2", "dodgerblue4",
+                 "purple4", "maroon", "chocolate1", "bisque3", "bisque",
+                 "seagreen4", "lightgreen", "skyblue4", "mediumpurple3",
+                 "palevioletred1", "lightsalmon4", "darkgoldenrod1"),
   YMin = 0,
   YMax = max(df$price) * 1.1,
   XMin = 0,
