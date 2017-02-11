@@ -16,9 +16,7 @@ ggplot_func <- function(df,
   YMax = max(df$price) * 1.1,
   XMin = 0,
   XMax = max(df$carat) * 1.1,
-  Caption = "",
-  FigNum = -1,
-  FigNumOffset = 0
+  Caption = ""
 ) {
     FigureNum <<- FigureNum + 1
     
