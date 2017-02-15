@@ -32,3 +32,7 @@ source("../02 Grammar of Graphics with R and ggplot2/Plotting Function Example.R
 ```
 
 ![](4diamonds.png)</center>
+
+```{r}
+source("../03 Tableau/Week 5 Tableau.R")
+```
