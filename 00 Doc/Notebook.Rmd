@@ -34,5 +34,9 @@ source("../02 Grammar of Graphics with R and ggplot2/Plotting Function Example.R
 ![](4diamonds.png)</center>
 
 ```{r}
-source("../03 Tableau/Week 5 Tableau.R")
+source("../03 Tableau/Week 5 Tuesday Tableau.R")
+```
+
+```{r}
+source("../04 Data ETL (Extract, Transform, and Load) in R/R_ETL.diamonds.R")
 ```
