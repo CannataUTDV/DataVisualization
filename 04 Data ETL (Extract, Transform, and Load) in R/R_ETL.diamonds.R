@@ -25,8 +25,14 @@ for(n in names(df)) {
 # The following is an example of dealing with special cases like making state abbreviations be all upper case.
 # df["State"] <- data.frame(lapply(df["State"], toupper))
 
+na2emptyString <- function (x) {
+  x[is.na(x)] <- 0
+  return(x)
+}
 if( length(dimensions) > 1) {
   for(d in dimensions) {
+    # Change NA to the empty string.
+    df[m] <- data.frame(lapply(df[m], na2emptyString))
     # Get rid of " and ' in dimensions.
     df[d] <- data.frame(lapply(df[d], gsub, pattern="[\"']",replacement= ""))
     # Change & to and in dimensions.
@@ -36,11 +42,16 @@ if( length(dimensions) > 1) {
   }
 }
 
-# Get rid of all characters in measures except for numbers, the - sign, and period.dimensions
+na2zero <- function (x) {
+  x[is.na(x)] <- 0
+  return(x)
+}
+# Get rid of all characters in measures except for numbers, the - sign, and period.dimensions, and change NA to 0.
 if( length(measures) > 1) {
   for(m in measures) {
     print(m)
     df[m] <- data.frame(lapply(df[m], gsub, pattern="[^--.0-9]",replacement= ""))
+    df[m] <- data.frame(lapply(df[m], na2zero))
     df[m] <- data.frame(lapply(df[m], as.numeric)) # This is needed to turn measures back to numeric because gsub turns them into strings.
   }
 }
