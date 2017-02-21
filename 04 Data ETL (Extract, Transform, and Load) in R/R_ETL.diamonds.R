@@ -1,8 +1,7 @@
 require(readr)
 
-# Set the Working Directory as the CSVs subfolder in this folder.
-
-file_path = "Diamonds.csv"
+# Set the Working Directory to the 00 Doc folder
+file_path = "../../CSVs/PreETL_Diamonds.csv"
 diamonds <- readr::read_csv(file_path)
 names(diamonds)
 
@@ -46,7 +45,7 @@ if( length(measures) > 1) {
 }
 str(df)
 
-write.csv(df, paste(gsub(".csv", "", file_path), ".reformatted.csv", sep=""), row.names=FALSE, na = "")
+write.csv(df, gsub("PreETL_", "", file_path), row.names=FALSE, na = "")
 
 tableName <- gsub(" +", "_", gsub("[^A-z, 0-9, ]", "", gsub(".csv", "", file_path)))
 sql <- paste("CREATE TABLE", tableName, "(\n-- Change table_name to the table name you want.\n")
