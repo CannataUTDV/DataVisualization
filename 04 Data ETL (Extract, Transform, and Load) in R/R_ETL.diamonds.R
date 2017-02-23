@@ -1,4 +1,5 @@
 require(readr)
+require(plyr)
 
 # Set the Working Directory to the 00 Doc folder
 # Download the cannata/diamonds file into a folder ../../CSVs and rename the file PreETL_Diamonds.csv
@@ -6,7 +7,7 @@ file_path = "../../CSVs/PreETL_Diamonds.csv"
 diamonds <- readr::read_csv(file_path)
 names(diamonds)
 
-df <- rename(diamonds, tbl = table) # table is a reserved word in Oracle so rename it to tbl.
+df <- plyr::rename(diamonds, c("table"="tbl")) # table is a reserved word in Oracle so rename it to tbl.
 names(df)
 str(df) # Uncomment this line and  run just the lines to here to get column types to use for getting the list of measures.
 
@@ -26,13 +27,13 @@ for(n in names(df)) {
 # df["State"] <- data.frame(lapply(df["State"], toupper))
 
 na2emptyString <- function (x) {
-  x[is.na(x)] <- 0
+  x[is.na(x)] <- ""
   return(x)
 }
-if( length(dimensions) > 1) {
+if( length(dimensions) > 0) {
   for(d in dimensions) {
     # Change NA to the empty string.
-    df[m] <- data.frame(lapply(df[m], na2emptyString))
+    df[d] <- data.frame(lapply(df[d], na2emptyString))
     # Get rid of " and ' in dimensions.
     df[d] <- data.frame(lapply(df[d], gsub, pattern="[\"']",replacement= ""))
     # Change & to and in dimensions.
@@ -61,12 +62,12 @@ write.csv(df, gsub("PreETL_", "", file_path), row.names=FALSE, na = "")
 
 tableName <- gsub(" +", "_", gsub("[^A-z, 0-9, ]", "", gsub(".csv", "", file_path)))
 sql <- paste("CREATE TABLE", tableName, "(\n-- Change table_name to the table name you want.\n")
-if( length(measures) > 1 || ! is.na(dimensions)) {
+if( length(measures) > 0 || ! is.na(dimensions)) {
   for(d in dimensions) {
     sql <- paste(sql, paste(d, "varchar2(4000),\n"))
   }
 }
-if( length(measures) > 1 || ! is.na(measures)) {
+if( length(measures) > 0 || ! is.na(measures)) {
   for(m in measures) {
     if(m != tail(measures, n=1)) sql <- paste(sql, paste(m, "number(38,4),\n"))
     else sql <- paste(sql, paste(m, "number(38,4)\n"))
