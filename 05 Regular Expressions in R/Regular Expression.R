@@ -15,8 +15,8 @@
 #   \     The following metacharacter losses it's special meaning.
 
 lapply('alphabet begins with abc', gsub, pattern="[abc]",replacement= "")
-lapply('alphabet begins with abc', gsub, pattern="xyz",replacement= "")
-lapply('alphabet begins with abc', gsub, pattern="[^abc]",replacement= "")
+lapply('alphabet begins with xyz', gsub, pattern="xyz",replacement= "")
+lapply('alphabet begins with abc', gsub, pattern="[^ac]",replacement= "")
 lapply('alphabet begins with abc', gsub, pattern="^[abc]",replacement= "")
 lapply('alphabet begins with --- abc', gsub, pattern="[a-e]",replacement= "")
 lapply('alphabet begins with --- abc', gsub, pattern="[ae-]",replacement= "")
@@ -58,6 +58,12 @@ grep("^Go+d", tmp$cut, perl=TRUE, value=FALSE) %>% tmp[., c('carat', 'cut', 'col
 grep("^[Gg]o+d", tmp$cut, perl=TRUE, value=FALSE) %>% tmp[., c('carat', 'cut', 'color')] %>% tbl_df
 grep("^[Gg]o+d|Fair", tmp$cut, perl=TRUE, value=FALSE) %>% tmp[., c('carat', 'cut', 'color')] %>% tbl_df
 grep("((Very|Highly) Good)|Ideal", tmp$cut, perl=TRUE, value=FALSE) %>% tmp[., c('carat', 'cut', 'color')] %>% tbl_df
+
+#Unix example:
+  #echo 'alphabet ;begins with [e[] abc' | tr ";" "\n" | sed "s/[[ae]]//"  
+
+# For more examples see,
+# http://www.endmemo.com/program/R/gsub.php
 
 # Changing column values based upon a regular expression
 # d <- with(diamonds, gsub("(Very|Highly) Good", "Great", cut)) %>% diamonds["cut", .]
