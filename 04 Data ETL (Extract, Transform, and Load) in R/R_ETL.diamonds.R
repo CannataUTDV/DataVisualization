@@ -53,7 +53,7 @@ if( length(measures) > 1) {
     print(m)
     df[m] <- data.frame(lapply(df[m], gsub, pattern="[^--.0-9]",replacement= ""))
     df[m] <- data.frame(lapply(df[m], na2zero))
-    df[m] <- data.frame(lapply(df[m], as.numeric)) # This is needed to turn measures back to numeric because gsub turns them into strings.
+    df[m] <- data.frame(lapply(df[m], function(x) as.numeric(as.character(x)))) # This is needed to turn measures back to numeric because gsub turns them into strings.
   }
 }
 str(df)
