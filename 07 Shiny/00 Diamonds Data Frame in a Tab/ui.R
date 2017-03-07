@@ -7,10 +7,10 @@ navbarPage(
   title = "Elements of Data Visualization",
   tabPanel(title = "Diamonds Data",
      sidebarPanel(
-       actionButton(inputId = "clicks1",  label = "Click me")
+       actionButton(inputId = "CLICKS1",  label = "Click me")
      ),
      
-     mainPanel(dataTableOutput("table")
+     mainPanel(dataTableOutput("TABLE")
      )
   )
 )
