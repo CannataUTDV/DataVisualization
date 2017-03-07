@@ -116,13 +116,13 @@ diamonds %>% group_by(cut,color) %>% dplyr::summarise(mean = mean(x), sum = sum(
 diamonds %>% group_by(cut,color) %>% dplyr::summarise(mean = mean(x), sum = sum(x,y,z), n = n()) %>% dplyr::arrange(n)
 diamonds %>% group_by(cut,color) %>% dplyr::summarise(mean = mean(x), sum = sum(x,y,z), n = n()) %>% dplyr::arrange(desc(n), cut, color)
 
-diamonds %>% group_by(cut, color, clarity) %>% dplyr::summarise(mean_carat = mean(carat)) %>% ggplot(aes(x=cut, y=mean_carat, color=color)) + geom_point() + facet_wrap(~clarity)
+diamonds %>% group_by(cut, color, clarity) %>% dplyr::summarise(mean_carat = mean(carat)) %>% ggplot(aes(x=cut, y=mean_carat, colour=color)) + geom_point() + facet_wrap(~clarity)
 
 # reshaping
 require(tidyr)
 diamonds$ID <- seq.int(nrow(diamonds)) # nrow() - return the number of rows, seq.int() - return an integer sequence
 View(diamonds) 
 diamonds %>% dplyr::select(ID, x, y, z, cut) %>% tidyr::gather(variable, value, -ID, -cut) %>% ggplot() +
-  # facet_grid(~cut) +
-  # ylim(0, 10) +
+  facet_grid(~cut) +
+  ylim(0, 10) +
   geom_point(aes(x=ID, y=value, colour=variable))
