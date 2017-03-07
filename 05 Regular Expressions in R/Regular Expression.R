@@ -105,7 +105,7 @@ lapply('alphabet begins with aaabc', gsub, pattern="a{4}bc",replacement= "")
 # [1] "alphabet begins with aaabc"
 # Matches 4 a's immediately followed by bc
 
-lapply('alphabet begins with aaabc', gsub, pattern="(beg).*(abc)",replacement= "\\21234")
+lapply('alphabet begins with aaabc', gsub, pattern="(beg).*(abc)",replacement= "\\1\\21234")
 # [1] "alphabet abc1234"
 # Matches all characters from 'beg' to 'abc'. '\\2' means "capture group 2", so it replaces the matches portion of the string
 # with 'abc' (the second capture group), followed by '1234'
