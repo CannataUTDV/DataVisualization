@@ -3,13 +3,15 @@
 library(shiny)
 
 ui <- fluidPage(
-  h1("My Shiny App"),
-  p(style = "font-family:Impact",
+  tags$h1("My Shiny App"),
+  tags$p(style = "font-family:Impact",
     "See other apps in the",
-    a("Shiny Showcase",
+    tags$a("Shiny Showcase",
       href = "http://www.rstudio.com/
       products/shiny/shiny-user-showcase/")
-  )
+  ),
+  tags$img(height=100, width=100, src="bigorb.png"),
+  HTML('<h1>HTML UT</h1>')
 )
 
 server <- function(input, output){}

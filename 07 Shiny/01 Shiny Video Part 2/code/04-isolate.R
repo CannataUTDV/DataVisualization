@@ -6,7 +6,7 @@ ui <- fluidPage(
   sliderInput(inputId = "E_NUM", 
     label = "Choose a number", 
     value = 25, min = 1, max = 100),
-  textInput(inputId = "O_TITLE", 
+  textInput(inputId = "E_TITLE", 
     label = "Write a title",
     value = "Histogram of Random Normal Values"),
   plotOutput("O_HIST")
@@ -14,7 +14,7 @@ ui <- fluidPage(
 
 server <- function(input, output) {
   output$O_HIST <- renderPlot({
-    hist(rnorm(input$E_NUM), main = isolate(input$O_TITLE))
+    hist(rnorm(input$E_NUM), main = isolate(input$E_TITLE))
   })
 }
 
