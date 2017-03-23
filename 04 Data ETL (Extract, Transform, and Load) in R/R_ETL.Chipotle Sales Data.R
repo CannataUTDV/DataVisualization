@@ -1,17 +1,15 @@
 require(readr)
-require(plyr)
+#require(plyr)
 
 # Set the Working Directory to the 00 Doc folder
 # Download the cannata/diamonds file into a folder ../../CSVs and rename the file PreETL_Diamonds.csv
-file_path = "../../CSVs/PreETL_Diamonds.csv"
-diamonds <- readr::read_csv(file_path)
-names(diamonds)
-
-df <- plyr::rename(diamonds, c("table"="tbl")) # table is a reserved word in Oracle so rename it to tbl.
+file_path = "../../CSVs/PreETL_ChipotleSalesData.csv"
+df <- readr::read_csv(file_path)
 names(df)
+
 str(df) # Uncomment this line and  run just the lines to here to get column types to use for getting the list of measures.
 
-measures <- c("carat", "depth", "tbl", "price", "x", "y" , "z")
+measures <- c("Order_ID", "Quantity")
 #measures <- NA # Do this if there are no measures.
 
 dimensions <- setdiff(names(df), measures)
