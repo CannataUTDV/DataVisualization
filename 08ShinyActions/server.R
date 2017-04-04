@@ -1,10 +1,11 @@
 require(dplyr)
+require(ggplot2)
 
 x=1:5
 y=2*x
 z=c('a', 'b', 'c', 'd', 'e')
 df=data.frame(x,y, z)
-print(df)
+#print(df)
 
 server <- function(input, output) {
   output$plot1 <- renderPlot({
