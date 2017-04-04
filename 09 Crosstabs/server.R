@@ -31,7 +31,7 @@ shinyServer(function(input, output) {
         )
       }
     )
-    View(df1())
+    #View(df1())
     plot <- ggplot(df1()) + 
       geom_text(aes(x=color, y=clarity, label=sum_price), size=6) +
       geom_tile(aes(x=color, y=clarity, fill=kpi), alpha=0.50)
