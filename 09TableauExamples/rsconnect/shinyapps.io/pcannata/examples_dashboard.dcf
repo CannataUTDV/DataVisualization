@@ -1,0 +1,10 @@
+name: examples_dashboard
+title: Examples Dashboard
+account: pcannata
+server: shinyapps.io
+appId: 169048
+bundleId: 774259
+url: https://pcannata.shinyapps.io/examples_dashboard/
+when: 1491181917.69369
+asMultiple: FALSE
+asStatic: FALSE
