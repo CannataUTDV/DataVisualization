@@ -11,8 +11,8 @@ shinyServer(function(input, output) {
   KPI_Low = reactive({input$KPI1})     
   KPI_Medium = reactive({input$KPI2})
 
+# Crosstab Tab ------------------------------------------------------------------
   df1 <- eventReactive(input$click1, {
-      print(online)
       if(online() == "SQL") {
         print("Getting from data.world")
         query(
@@ -60,4 +60,6 @@ shinyServer(function(input, output) {
     geom_text(aes(x=Category, y=State, label=sum_sales), size=6) +
     geom_tile(aes(x=Category, y=State, fill=kpi), alpha=0.50)
   })
+# End Crosstab Tab ___________________________________________________________
+  
 })

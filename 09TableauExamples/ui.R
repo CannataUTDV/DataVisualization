@@ -1,5 +1,4 @@
 #ui.R
-
 require(shiny)
 require(shinydashboard)
 
@@ -13,9 +12,9 @@ dashboardPage(
   ),
   dashboardBody(
     tabItems(
-      # First tab content
+      # Crosstab tab content
         tabItem(tabName = "crosstab",  
-        radioButtons("rb", "Choose one:",
+        radioButtons("rb", "Get data from:",
           c("SQL" = "SQL",
             "CSV" = "CSV")),
         sliderInput("KPI1", "KPI_Low:", 
