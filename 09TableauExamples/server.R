@@ -6,14 +6,14 @@ require(shinydashboard)
 require(data.world)
 require(readr)
 
-online = T
-
 shinyServer(function(input, output) { 
+  online = reactive({input$rb})
   KPI_Low = reactive({input$KPI1})     
   KPI_Medium = reactive({input$KPI2})
 
   df1 <- eventReactive(input$click1, {
-      if(online) {
+      print(online)
+      if(online() == "SQL") {
         print("Getting from data.world")
         query(
             data.world(propsfile = "www/.data.world"),
