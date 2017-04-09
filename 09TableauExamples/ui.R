@@ -20,7 +20,7 @@ dashboardPage(
         sliderInput("KPI2", "KPI_Medium:", 
                     min = .1, max = .2,  value = .2),
         actionButton(inputId = "click1",  label = "To start, click here"),
-        plotOutput("distPlot1", height=1000)
+        plotOutput("plot1", height=1000)
       )
     )
   )

@@ -6,19 +6,16 @@ require(shinydashboard)
 require(data.world)
 require(readr)
 
-online = F
+online = T
 
 shinyServer(function(input, output) { 
+  KPI_Low = reactive({input$KPI1})     
+  KPI_Medium = reactive({input$KPI2})
 
-  observeEvent(input$click1, {
-    output$distPlot1 <- renderPlot({
-      
-      KPI_Low = input$KPI1     
-      KPI_Medium = input$KPI2
-      
+  df1 <- eventReactive(input$click1, {
       if(online) {
-        #print("Getting from data.world")
-        df1 <- query(
+        print("Getting from data.world")
+        query(
             data.world(propsfile = "www/.data.world"),
             dataset="cannata/superstoreorders", type="sql",
             query="select Category, State, 
@@ -37,25 +34,30 @@ shinyServer(function(input, output) {
             Category in ('Chairs  and  Chairmats', 'Office Machines', 'Tables', 'Telephones and Communication')
             group by Category, State
             order by Category, State",
-            queryParameters = list(KPI_Low, KPI_Medium)
-          )
+            queryParameters = list(KPI_Low(), KPI_Medium())
+          ) # %>% View()
       }
       else {
-        #print("Getting from csv")
+        print("Getting from csv")
         file_path = "www/SuperStoreOrders.csv"
         df <- readr::read_csv(file_path)
-        df1 = df %>% 
-          dplyr::filter(Country_Region == 'United States of America', Category %in% c('Chairs  and  Chairmats', 'Office Machines', 'Tables', 'Telephones and Communication')) %>%
+        df %>% 
+          dplyr::filter(Country_Region == 'United States of America', Category %in% 
+                          c('Chairs  and  Chairmats',
+                            'Office Machines',
+                            'Tables',
+                            'Telephones and Communication')) %>%
           dplyr::group_by(Category, State) %>% 
-          dplyr::summarize(sum_profit = sum(Profit), sum_sales = sum(Sales), ratio = sum(Profit) / sum(Sales), kpi = if_else(ratio <= KPI_Low, '03 Low', if_else(ratio <= KPI_Medium, '02 Medium', '01 High')))
+          dplyr::summarize(sum_profit = sum(Profit), sum_sales = sum(Sales),
+                           ratio = sum(Profit) / sum(Sales),
+                           kpi = if_else(ratio <= KPI_Low(), '03 Low',
+                           if_else(ratio <= KPI_Medium(), '02 Medium', '01 High'))) # %>% View()
       }
-      View(df1)
-      plot <- ggplot(df1) + 
-        theme(axis.text.x=element_text(angle=90, size=16, vjust=0.5)) + 
-        theme(axis.text.y=element_text(size=16, hjust=0.5)) +
-        geom_text(aes(x=Category, y=State, label=sum_sales), size=6) +
-        geom_tile(aes(x=Category, y=State, fill=kpi), alpha=0.50)
-      plot
-      })
+  })
+  output$plot1 <- renderPlot({ggplot(df1()) + 
+    theme(axis.text.x=element_text(angle=90, size=16, vjust=0.5)) + 
+    theme(axis.text.y=element_text(size=16, hjust=0.5)) +
+    geom_text(aes(x=Category, y=State, label=sum_sales), size=6) +
+    geom_tile(aes(x=Category, y=State, fill=kpi), alpha=0.50)
   })
 })
