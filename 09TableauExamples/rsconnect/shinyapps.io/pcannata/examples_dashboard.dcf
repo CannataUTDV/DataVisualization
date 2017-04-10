@@ -3,8 +3,8 @@ title: Examples Dashboard
 account: pcannata
 server: shinyapps.io
 appId: 169048
-bundleId: 782429
+bundleId: 782448
 url: https://pcannata.shinyapps.io/examples_dashboard/
-when: 1491748010.0844
+when: 1491749289.06302
 asMultiple: FALSE
 asStatic: FALSE

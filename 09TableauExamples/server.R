@@ -5,6 +5,7 @@ require(shiny)
 require(shinydashboard)
 require(data.world)
 require(readr)
+require(DT)
 
 shinyServer(function(input, output) { 
   online = reactive({input$rb})
@@ -53,6 +54,10 @@ shinyServer(function(input, output) {
                            kpi = if_else(ratio <= KPI_Low(), '03 Low',
                            if_else(ratio <= KPI_Medium(), '02 Medium', '01 High'))) # %>% View()
       }
+  })
+  output$data1 <- renderDataTable({DT::datatable(df1(), rownames = FALSE,
+                                extensions = list(Responsive = TRUE, FixedHeader = TRUE)
+  )
   })
   output$plot1 <- renderPlot({ggplot(df1()) + 
     theme(axis.text.x=element_text(angle=90, size=16, vjust=0.5)) + 
