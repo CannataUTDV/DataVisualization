@@ -7,12 +7,27 @@ require(data.world)
 require(readr)
 require(DT)
 
+# The following query is for the select list in the Barcharts tab.
+regions = query(
+  data.world(propsfile = "www/.data.world"),
+  dataset="cannata/superstoreorders", type="sql",
+  query="select distinct Region as D, Region as R
+  from SuperStoreOrders
+  order by 1"
+) # %>% View()
+region_list <- as.list(regions$D, regions$R)
+region_list <- append(list("All" = "All"), region_list)
+
 shinyServer(function(input, output) { 
+  # These widgets are for the Crosstabs tab.
   online1 = reactive({input$rb1})
-  online2 = reactive({input$rb2})
   KPI_Low = reactive({input$KPI1})     
   KPI_Medium = reactive({input$KPI2})
-
+  
+  # These widgets are for the Barcharts tab.
+  online2 = reactive({input$rb2})
+  output$regions2 <- renderUI({selectInput("selectedRegions", "Choose Categories:", region_list, multiple = TRUE) })
+  
 # Begin Crosstab Tab ------------------------------------------------------------------
   df1 <- eventReactive(input$click1, {
       if(online1() == "SQL") {
@@ -71,13 +86,15 @@ shinyServer(function(input, output) {
   df2 <- eventReactive(input$click2, {
     if(online2() == "SQL") {
       print("Getting from data.world")
+      print(input$selectedRegions)
       tdf = query(
         data.world(propsfile = "www/.data.world"),
         dataset="cannata/superstoreorders", type="sql",
         query="select Category, Region, sum(Sales) sum_sales
                 from SuperStoreOrders
-                where Region in ('West', 'South', 'East', 'Central')
-                group by Category, Region"
+                where Region = ? or ? = 'All'
+                group by Category, Region",
+        queryParameters = list(unlist(input$selectedRegions), unlist(input$selectedRegions))
       ) # %>% View()
     }
     else {
