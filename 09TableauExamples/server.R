@@ -15,6 +15,14 @@ regions = query(
   from SuperStoreOrders
   order by 1"
 ) # %>% View()
+if(regions[1] == "Server error") {
+  print("Getting Regions from csv")
+  file_path = "www/SuperStoreOrders.csv"
+  df <- readr::read_csv(file_path) 
+  tdf1 = df %>% dplyr::distinct(Region) %>% arrange(Region) %>% dplyr::rename(D = Region)
+  tdf2 = df %>% dplyr::distinct(Region) %>% arrange(Region) %>% dplyr::rename(D = Region)
+  regions = bind_cols(tdf1, tdf2)
+}
 region_list <- as.list(regions$D, regions$R)
 region_list <- append(list("All" = "All"), region_list)
 
