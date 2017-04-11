@@ -101,7 +101,7 @@ shinyServer(function(input, output) {
       print("Getting from csv")
       file_path = "www/SuperStoreOrders.csv"
       df <- readr::read_csv(file_path)
-      tdf = df %>% 
+      tdf = df %>% dplyr::filter(Region %in% input$selectedRegions | input$selectedRegions == "All") %>%
         dplyr::group_by(Category, Region) %>% 
         dplyr::summarize(sum_sales = sum(Sales)) # %>% View()
     }
