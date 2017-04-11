@@ -43,7 +43,7 @@ dashboardPage(
                    hr(), # Add space after button.
                    DT::dataTableOutput("data2")
           ),
-          tabPanel("Barchart", plotOutput("plot2", height=1500))
+          tabPanel("Barchart", "Black = Sum of Sales per Region, Red = Average Sum of Sales per Category, and  Blue = (Sum of Sales per Region - Average Sum of Sales per Category)", plotOutput("plot2", height=1500))
         )
       )
       # End Barchart tab content.

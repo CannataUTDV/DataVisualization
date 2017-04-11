@@ -108,10 +108,12 @@ shinyServer(function(input, output) {
       geom_bar(stat = "identity") + 
       facet_wrap(~Category, ncol=1) + 
       coord_flip() + 
-      # Add sum_sales - window_avg_sales label.
-      geom_text(mapping=aes(x=Region, y=sum_sales, label=round(sum_sales - window_avg_sales)),colour="red", hjust=-.5) +
-      # Add reference line.
-      geom_hline(aes(yintercept = window_avg_sales), color="red")
+      # Add sum_sales, and (sum_sales - window_avg_sales) label.
+      geom_text(mapping=aes(x=Region, y=sum_sales, label=round(sum_sales)),colour="black", hjust=-.5) +
+      geom_text(mapping=aes(x=Region, y=sum_sales, label=round(sum_sales - window_avg_sales)),colour="blue", hjust=-2) +
+      # Add reference line with a label.
+      geom_hline(aes(yintercept = window_avg_sales), color="red") +
+      geom_text(aes( -1, window_avg_sales, label = window_avg_sales, vjust = -.5, hjust = -.25), color="red")
   })
   # End Barchart Tab ___________________________________________________________
   
