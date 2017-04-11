@@ -76,6 +76,7 @@ shinyServer(function(input, output) {
         dataset="cannata/superstoreorders", type="sql",
         query="select Category, Region, sum(Sales) sum_sales
                 from SuperStoreOrders
+                where Region in ('West', 'South', 'East', 'Central')
                 group by Category, Region"
       ) # %>% View()
     }
@@ -112,7 +113,7 @@ shinyServer(function(input, output) {
       geom_text(mapping=aes(x=Region, y=sum_sales, label=round(sum_sales)),colour="black", hjust=-.5) +
       geom_text(mapping=aes(x=Region, y=sum_sales, label=round(sum_sales - window_avg_sales)),colour="blue", hjust=-2) +
       # Add reference line with a label.
-      geom_hline(aes(yintercept = window_avg_sales), color="red") +
+      geom_hline(aes(yintercept = round(window_avg_sales)), color="red") +
       geom_text(aes( -1, window_avg_sales, label = window_avg_sales, vjust = -.5, hjust = -.25), color="red")
   })
   # End Barchart Tab ___________________________________________________________
