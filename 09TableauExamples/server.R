@@ -34,7 +34,7 @@ shinyServer(function(input, output) {
   
   # These widgets are for the Barcharts tab.
   online2 = reactive({input$rb2})
-  output$regions2 <- renderUI({selectInput("selectedRegions", "Choose Regions (multiple selects don't work with data.world yet):", region_list, multiple = TRUE) })
+  output$regions2 <- renderUI({selectInput("selectedRegions", "Choose Regions:", region_list, multiple = TRUE) })
   
 # Begin Crosstab Tab ------------------------------------------------------------------
   df1 <- eventReactive(input$click1, {
@@ -92,17 +92,18 @@ shinyServer(function(input, output) {
 # End Crosstab Tab ___________________________________________________________
 # Begin Barchart Tab ------------------------------------------------------------------
   df2 <- eventReactive(input$click2, {
+    if(input$selectedRegions == 'All') region_list <- input$selectedRegions
+    else region_list <- append(list("Skip" = "Skip"), input$selectedRegions)
     if(online2() == "SQL") {
       print("Getting from data.world")
-      print(input$selectedRegions)
       tdf = query(
         data.world(propsfile = "www/.data.world"),
         dataset="cannata/superstoreorders", type="sql",
         query="select Category, Region, sum(Sales) sum_sales
                 from SuperStoreOrders
-                where Region = ? or ? = 'All'
+                where ? = 'All' or Region in (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 group by Category, Region",
-        queryParameters = list(unlist(input$selectedRegions), unlist(input$selectedRegions))
+        queryParameters = region_list
       ) # %>% View()
     }
     else {
