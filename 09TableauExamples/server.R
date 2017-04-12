@@ -20,7 +20,7 @@ if(regions[1] == "Server error") {
   file_path = "www/SuperStoreOrders.csv"
   df <- readr::read_csv(file_path) 
   tdf1 = df %>% dplyr::distinct(Region) %>% arrange(Region) %>% dplyr::rename(D = Region)
-  tdf2 = df %>% dplyr::distinct(Region) %>% arrange(Region) %>% dplyr::rename(D = Region)
+  tdf2 = df %>% dplyr::distinct(Region) %>% arrange(Region) %>% dplyr::rename(R = Region)
   regions = bind_cols(tdf1, tdf2)
 }
 region_list <- as.list(regions$D, regions$R)
@@ -34,7 +34,7 @@ shinyServer(function(input, output) {
   
   # These widgets are for the Barcharts tab.
   online2 = reactive({input$rb2})
-  output$regions2 <- renderUI({selectInput("selectedRegions", "Choose Categories:", region_list, multiple = TRUE) })
+  output$regions2 <- renderUI({selectInput("selectedRegions", "Choose Regions (multiple selects don't work with data.world yet):", region_list, multiple = TRUE) })
   
 # Begin Crosstab Tab ------------------------------------------------------------------
   df1 <- eventReactive(input$click1, {
