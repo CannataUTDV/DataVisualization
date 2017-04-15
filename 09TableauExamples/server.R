@@ -6,8 +6,9 @@ require(shinydashboard)
 require(data.world)
 require(readr)
 require(DT)
+require(leaflet)
 
-# The following query is for the select list in the Barcharts tab.
+# The following query is for the select list in the Barcharts -> Barchart with Table Calculation tab.
 regions = query(
   data.world(propsfile = "www/.data.world"),
   dataset="cannata/superstoreorders", type="sql",
@@ -26,6 +27,36 @@ if(regions[1] == "Server error") {
 region_list <- as.list(regions$D, regions$R)
 region_list <- append(list("All" = "All"), region_list)
 
+# The following query is for the select list in the Barcharts -> High Discount Orders tab.
+discounts = query(
+  data.world(propsfile = "www/.data.world"),
+  dataset="cannata/superstoreorders", type="sql",
+  query="SELECT Customer_Name as CustomerName, 
+       s.City, states.abbreviation AS State, 
+  c.LATITUDE AS Latitude, 
+  c.LONGITUDE AS LONGITUDE, 
+  Order_Id as OrderId, sum(Discount), sum(Sales)
+  FROM SuperStoreOrders s, 
+  markmarkoh.`us-state-table`.`state_table.csv/state_table` states, 
+  dhs.`cities-and-towns-ntad`.`Cities_and_Towns_NTAD.csv/Cities_and_Towns_NTAD` c 
+  WHERE Region != 'International'
+  AND (s.State = states.name)
+  AND (s.City = c.NAME)
+  AND (states.abbreviation = c.STATE)
+  group by Customer_Name, City, State, Order_Id
+  having sum(Discount) between .3 and .6"
+) # %>% View()
+
+# The following query is for the select list in the Barcharts -> High Sales Customers tab.
+sales = query(
+  data.world(propsfile = "www/.data.world"),
+  dataset="cannata/superstoreorders", type="sql",
+  query="SELECT Customer_Id as CustomerId, sum(Profit) as sumProfit, sum(Sales) as SumSales
+  from SuperStoreOrders
+  group by Customer_Id
+  having sum(Sales) > 100000"
+) # %>% View()
+
 shinyServer(function(input, output) { 
   # These widgets are for the Crosstabs tab.
   online1 = reactive({input$rb1})
@@ -34,7 +65,7 @@ shinyServer(function(input, output) {
   
   # These widgets are for the Barcharts tab.
   online2 = reactive({input$rb2})
-  output$regions2 <- renderUI({selectInput("selectedRegions", "Choose Regions:", region_list, multiple = TRUE) })
+  output$regions2 <- renderUI({selectInput("selectedRegions", "Choose Regions:", region_list, multiple = TRUE, selected='All') })
   
 # Begin Crosstab Tab ------------------------------------------------------------------
   df1 <- eventReactive(input$click1, {
@@ -124,11 +155,19 @@ shinyServer(function(input, output) {
       #       from SuperStoreOrders
       #      group by Category, Region)
   })
-  output$data2 <- renderDataTable({DT::datatable(df2(), rownames = FALSE,
-                        extensions = list(Responsive = TRUE, FixedHeader = TRUE)
-  )
+  output$barchartData1 <- renderDataTable({DT::datatable(df2(),
+                        rownames = FALSE,
+                        extensions = list(Responsive = TRUE, FixedHeader = TRUE) )
   })
-  output$plot2 <- renderPlot({ggplot(df2(), aes(x=Region, y=sum_sales)) +
+  output$barchartData2 <- renderDataTable({DT::datatable(discounts,
+                        rownames = FALSE,
+                        extensions = list(Responsive = TRUE, FixedHeader = TRUE) )
+  })
+  output$barchartData3 <- renderDataTable({DT::datatable(sales,
+                        rownames = FALSE,
+                        extensions = list(Responsive = TRUE, FixedHeader = TRUE) )
+  })
+  output$barchartPlot1 <- renderPlot({ggplot(df2(), aes(x=Region, y=sum_sales)) +
       scale_y_continuous(labels = scales::comma) + # no scientific notation
       theme(axis.text.x=element_text(angle=0, size=12, vjust=0.5)) + 
       theme(axis.text.y=element_text(size=12, hjust=0.5)) +
@@ -141,6 +180,19 @@ shinyServer(function(input, output) {
       # Add reference line with a label.
       geom_hline(aes(yintercept = round(window_avg_sales)), color="red") +
       geom_text(aes( -1, window_avg_sales, label = window_avg_sales, vjust = -.5, hjust = -.25), color="red")
+  })
+  
+  output$barchartMap1 <- renderLeaflet({leaflet(width = 400, height = 200) %>% 
+    addTiles() %>% 
+    addMarkers(lng = discounts$LONGITUDE,
+               lat = discounts$Latitude, 
+               popup = "You are here.")
+  })
+  
+  output$barchartPlot2 <- renderPlot({ggplot(sales, aes(x=as.character(CustomerId), y=sumProfit)) +
+      theme(axis.text.x=element_text(angle=0, size=12, vjust=0.5)) + 
+      theme(axis.text.y=element_text(size=12, hjust=0.5)) +
+      geom_bar(stat = "identity")
   })
   # End Barchart Tab ___________________________________________________________
   
