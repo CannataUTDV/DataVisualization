@@ -32,10 +32,10 @@ discounts = query(
   data.world(propsfile = "www/.data.world"),
   dataset="cannata/superstoreorders", type="sql",
   query="SELECT Customer_Name as CustomerName, 
-       s.City, states.abbreviation AS State, 
+       s.City as City, states.abbreviation as State, 
   c.LATITUDE AS Latitude, 
-  c.LONGITUDE AS LONGITUDE, 
-  Order_Id as OrderId, sum(Discount), sum(Sales)
+  c.LONGITUDE AS Longitude, 
+  Order_Id as OrderId, sum(Discount) as sumDiscount, sum(Sales)as sumSales
   FROM SuperStoreOrders s, 
   markmarkoh.`us-state-table`.`state_table.csv/state_table` states, 
   dhs.`cities-and-towns-ntad`.`Cities_and_Towns_NTAD.csv/Cities_and_Towns_NTAD` c 
@@ -45,7 +45,7 @@ discounts = query(
   AND (states.abbreviation = c.STATE)
   group by Customer_Name, City, State, Order_Id
   having sum(Discount) between .3 and .6"
-) # %>% View()
+)  # %>% View()
 
 # The following query is for the select list in the Barcharts -> High Sales Customers tab.
 sales = query(
@@ -182,11 +182,18 @@ shinyServer(function(input, output) {
       geom_text(aes( -1, window_avg_sales, label = window_avg_sales, vjust = -.5, hjust = -.25), color="red")
   })
   
-  output$barchartMap1 <- renderLeaflet({leaflet(width = 400, height = 200) %>% 
+  output$barchartMap1 <- renderLeaflet({leaflet(width = 400, height = 800) %>% 
+    setView(lng = -98.35, lat = 39.5, zoom = 4) %>% 
     addTiles() %>% 
-    addMarkers(lng = discounts$LONGITUDE,
-               lat = discounts$Latitude, 
-               popup = "You are here.")
+    addProviderTiles("MapQuestOpen.Aerial") %>%
+    addMarkers(lng = discounts$Longitude,
+      lat = discounts$Latitude,
+      options = markerOptions(draggable = TRUE, riseOnHover = TRUE),
+      popup = as.character(paste(discounts$CustomerName, 
+        ", ", discounts$City,
+        ", ", discounts$State,
+        " Sales: ","$", formatC(as.numeric(discounts$sumSales), format="f", digits=2, big.mark=","),
+        " Discount: ", ", ", discounts$sumDiscount)) )
   })
   
   output$barchartPlot2 <- renderPlot({ggplot(sales, aes(x=as.character(CustomerId), y=sumProfit)) +
