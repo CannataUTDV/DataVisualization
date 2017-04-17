@@ -31,19 +31,16 @@ region_list <- append(list("All" = "All"), region_list)
 discounts = query(
   data.world(propsfile = "www/.data.world"),
   dataset="cannata/superstoreorders", type="sql",
-  query="SELECT Customer_Name as CustomerName, 
-       s.City as City, states.abbreviation as State, 
+  query="SELECT Customer_Name as CustomerName, s.City as City, states.abbreviation as State, 
   c.LATITUDE AS Latitude, 
   c.LONGITUDE AS Longitude, 
   Order_Id as OrderId, sum(Discount) as sumDiscount, sum(Sales)as sumSales
-  FROM SuperStoreOrders s, 
-  markmarkoh.`us-state-table`.`state_table.csv/state_table` states, 
+  FROM SuperStoreOrders s join markmarkoh.`us-state-table`.`state_table.csv/state_table` states
+  ON (s.State = states.name AND s.City = c.NAME) join
   dhs.`cities-and-towns-ntad`.`Cities_and_Towns_NTAD.csv/Cities_and_Towns_NTAD` c 
+  ON (states.abbreviation = c.STATE)
   WHERE Region != 'International'
-  AND (s.State = states.name)
-  AND (s.City = c.NAME)
-  AND (states.abbreviation = c.STATE)
-  group by Customer_Name, City, State, Order_Id
+  group by Customer_Name, s.City, states.abbreviation, c.LATITUDE, c.LONGITUDE, Order_Id
   having sum(Discount) between .3 and .6"
 )  # %>% View()
 
@@ -190,10 +187,10 @@ shinyServer(function(input, output) {
       lat = discounts$Latitude,
       options = markerOptions(draggable = TRUE, riseOnHover = TRUE),
       popup = as.character(paste(discounts$CustomerName, 
-        ", ", discounts$City,
-        ", ", discounts$State,
-        " Sales: ","$", formatC(as.numeric(discounts$sumSales), format="f", digits=2, big.mark=","),
-        " Discount: ", ", ", discounts$sumDiscount)) )
+          ", ", discounts$City,
+          ", ", discounts$State,
+          " Sales: ","$", formatC(as.numeric(discounts$sumSales), format="f", digits=2, big.mark=","),
+          " Discount: ", ", ", discounts$sumDiscount)) )
   })
   
   output$barchartPlot2 <- renderPlot({ggplot(sales, aes(x=as.character(CustomerId), y=sumProfit)) +
