@@ -3,6 +3,7 @@ require(shiny)
 require(shinydashboard)
 require(DT)
 require(leaflet)
+require(plotly)
 
 dashboardPage(
   dashboardHeader(
