@@ -7,6 +7,7 @@ require(data.world)
 require(readr)
 require(DT)
 require(leaflet)
+require(plotly)
 
 # The following query is for the select list in the Barcharts -> Barchart with Table Calculation tab.
 regions = query(
@@ -34,7 +35,7 @@ discounts = query(
   query="SELECT Customer_Name as CustomerName, s.City as City, states.abbreviation as State, 
   c.LATITUDE AS Latitude, 
   c.LONGITUDE AS Longitude, 
-  Order_Id as OrderId, sum(Discount) as sumDiscount, sum(Sales)as sumSales
+  Order_Id as OrderId, sum(Discount) as sumDiscount, sum(Sales) as sumSales
   FROM SuperStoreOrders s join markmarkoh.`us-state-table`.`state_table.csv/state_table` states
   ON (s.State = states.name AND s.City = c.NAME) join
   dhs.`cities-and-towns-ntad`.`Cities_and_Towns_NTAD.csv/Cities_and_Towns_NTAD` c 
@@ -193,10 +194,11 @@ shinyServer(function(input, output) {
           " Discount: ", ", ", discounts$sumDiscount)) )
   })
   
-  output$barchartPlot2 <- renderPlot({ggplot(sales, aes(x=as.character(CustomerId), y=sumProfit)) +
+  output$barchartPlot2 <- renderPlotly({p <- ggplot(sales, aes(x=as.character(CustomerId), y=sumProfit)) +
       theme(axis.text.x=element_text(angle=0, size=12, vjust=0.5)) + 
       theme(axis.text.y=element_text(size=12, hjust=0.5)) +
       geom_bar(stat = "identity")
+      ggplotly(p)
   })
   # End Barchart Tab ___________________________________________________________
   
