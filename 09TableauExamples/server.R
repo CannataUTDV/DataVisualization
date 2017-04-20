@@ -29,57 +29,7 @@ region_list <- as.list(regions$D, regions$R)
 region_list <- append(list("All" = "All"), region_list)
 
 # The following query is for the select list in the Barcharts -> High Discount Orders tab.
-highDiscounts <- query(
-  data.world(propsfile = "www/.data.world"),
-  dataset="cannata/superstoreorders", type="sql",
-  query="SELECT distinct Order_Id, sum(Discount) as sumDiscount, sum(Sales) as sumSales FROM SuperStoreOrders
-      where Region != 'International'
-  group by Order_Id
-  having sum(Discount) >= .3"
-)  # %>% View()
-View(highDiscounts)
-
-highDiscountCustomers <- query(
-  data.world(propsfile = "www/.data.world"),
-  dataset="cannata/superstoreorders", type="sql",
-  query="SELECT distinct Customer_Name as CustomerName, City, State, Order_Id FROM SuperStoreOrders
-  where Order_Id in (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  order by Order_Id",
-  queryParameters = highDiscounts$Order_Id
-)  # %>% View()
-View(highDiscountCustomers)
-
-stateAbreviations <- query(
-  data.world(propsfile = "www/.data.world"),
-  dataset="cannata/superstoreorders", type="sql",
-  query="SELECT distinct name as State, abbreviation as Abbreviation
-  FROM markmarkoh.`us-state-table`.`state_table.csv/state_table`
-  where name in (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  order by name",
-  queryParameters = highDiscountCustomers$State
-)  # %>% View()
-View(stateAbreviations)
-
-highDiscountCustomers2 <- left_join(highDiscountCustomers, stateAbreviations, by="State") %>% dplyr::arrange(State) # %>% View()
-View(highDiscountCustomers2)
-
-longLat <- query(
-  data.world(propsfile = "www/.data.world"),
-  dataset="cannata/superstoreorders", type="sql",
-  query="SELECT distinct NAME as City, STATE as Abbreviation, LATITUDE AS Latitude,
-  LONGITUDE AS Longitude
-  FROM bryon.`dhs-city-location-example`.`towns.csv/towns`
-  where NAME in (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  order by NAME",
-  queryParameters = highDiscountCustomers$City
-)  # %>% View()
-View(longLat)
-
-discounts <- left_join(highDiscountCustomers, stateAbreviations, by="State") %>% 
-  inner_join(., longLat, by = c("City", "Abbreviation")) %>% inner_join(., highDiscounts, by="Order_Id") # %>% View()
-View(discounts)
-
-OLDdiscounts <- query(
+discounts <- query(
   data.world(propsfile = "www/.data.world"),
   dataset="cannata/superstoreorders", type="sql",
   query="SELECT Customer_Name as CustomerName, s.City as City, states.abbreviation as State, 
