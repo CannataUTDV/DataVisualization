@@ -41,7 +41,7 @@ region_list <- append(list("All" = "All"), region_list)
   group by Order_Id
   having sum(Discount) >= .3"
 ) # %>% View()
-  View(highDiscounts )
+  # View(highDiscounts )
 
 # Step 2
   highDiscountCustomers <- query(
@@ -55,7 +55,7 @@ region_list <- append(list("All" = "All"), region_list)
     order by Order_Id",
     queryParameters = highDiscounts$Order_Id
   ) # %>% View()
-    View(highDiscountCustomers)
+    # View(highDiscountCustomers)
     
 # Step 3
     stateAbreviations <- query(
@@ -68,12 +68,12 @@ region_list <- append(list("All" = "All"), region_list)
       order by name",
       queryParameters = highDiscountCustomers$State
     ) # %>% View()
-    View(stateAbreviations )
+    # View(stateAbreviations )
     
 # Step 4
     highDiscountCustomers2 <- left_join(highDiscountCustomers,
                                         stateAbreviations, by="State") # %>% View()
-    View(highDiscountCustomers2)
+    # View(highDiscountCustomers2)
     
 # Step 5
     longLat <- query(
