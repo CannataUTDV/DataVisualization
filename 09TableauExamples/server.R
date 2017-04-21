@@ -28,8 +28,79 @@ if(regions[1] == "Server error") {
 region_list <- as.list(regions$D, regions$R)
 region_list <- append(list("All" = "All"), region_list)
 
-# The following query is for the select list in the Barcharts -> High Discount Orders tab.
-discounts <- query(
+# The following queries are for the select list in the Barcharts -> High Discount Orders tab.
+# Step 1:
+  highDiscounts <- query(
+  data.world(propsfile = "www/.data.world"),
+  dataset="cannata/superstoreorders", type="sql",
+  query="
+  SELECT distinct Order_Id, sum(Discount) as sumDiscount, sum(Sales) as
+  sumSales
+  FROM SuperStoreOrders
+  where Region != 'International'
+  group by Order_Id
+  having sum(Discount) >= .3"
+) # %>% View()
+  View(highDiscounts )
+
+# Step 2
+  highDiscountCustomers <- query(
+    data.world(propsfile = "www/.data.world"),
+    dataset="cannata/superstoreorders", type="sql",
+    query="
+    SELECT distinct Customer_Name, City, State, Order_Id
+    FROM SuperStoreOrders
+    where Order_Id in
+    (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    order by Order_Id",
+    queryParameters = highDiscounts$Order_Id
+  ) # %>% View()
+    View(highDiscountCustomers)
+    
+# Step 3
+    stateAbreviations <- query(
+      data.world(propsfile = "www/.data.world"),
+      dataset="cannata/superstoreorders", type="sql",
+      query="SELECT distinct name as State, abbreviation as Abbreviation
+      FROM markmarkoh.`us-state-table`.`state_table.csv/state_table`
+      where name in
+      (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      order by name",
+      queryParameters = highDiscountCustomers$State
+    ) # %>% View()
+    View(stateAbreviations )
+    
+# Step 4
+    highDiscountCustomers2 <- left_join(highDiscountCustomers,
+                                        stateAbreviations, by="State") # %>% View()
+    View(highDiscountCustomers2)
+    
+# Step 5
+    longLat <- query(
+      data.world(propsfile = "www/.data.world"),
+      dataset="cannata/superstoreorders", type="sql",
+      query="SELECT distinct NAME as City, STATE as Abbreviation,
+      LATITUDE AS Latitude,
+      LONGITUDE AS Longitude
+      FROM bryon.`dhs-city-location-example`.`towns.csv/towns`
+      where NAME in
+      (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      order by NAME",
+      queryParameters = highDiscountCustomers$City
+    ) # %>% View()
+    # View(longLat)
+    
+# Step 6
+    highDiscountCustomers2LongLat <- 
+      inner_join(highDiscountCustomers2, longLat, by = c("City", "Abbreviation")) 
+    # View(highDiscountCustomers2LongLat)
+    
+# Step 7
+    discounts <- 
+      inner_join(highDiscountCustomers2LongLat, highDiscounts, by="Order_Id") # %>% View()
+    # View(discounts)
+
+OLDdiscounts <- query(
   data.world(propsfile = "www/.data.world"),
   dataset="cannata/superstoreorders", type="sql",
   query="SELECT Customer_Name as CustomerName, s.City as City, states.abbreviation as State, 
@@ -187,7 +258,7 @@ shinyServer(function(input, output) {
     addMarkers(lng = discounts$Longitude,
       lat = discounts$Latitude,
       options = markerOptions(draggable = TRUE, riseOnHover = TRUE),
-      popup = as.character(paste(discounts$CustomerName, 
+      popup = as.character(paste(discounts$Customer_Name, 
           ", ", discounts$City,
           ", ", discounts$State,
           " Sales: ","$", formatC(as.numeric(discounts$sumSales), format="f", digits=2, big.mark=","),
