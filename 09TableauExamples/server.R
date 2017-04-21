@@ -9,15 +9,18 @@ require(DT)
 require(leaflet)
 require(plotly)
 
+online0 = FALSE
+
 # The following query is for the select list in the Barcharts -> Barchart with Table Calculation tab.
-regions = query(
-  data.world(propsfile = "www/.data.world"),
-  dataset="cannata/superstoreorders", type="sql",
-  query="select distinct Region as D, Region as R
-  from SuperStoreOrders
-  order by 1"
-) # %>% View()
-if(regions[1] == "Server error") {
+if(online0) {
+  regions = query(
+    data.world(propsfile = "www/.data.world"),
+    dataset="cannata/superstoreorders", type="sql",
+    query="select distinct Region as D, Region as R
+    from SuperStoreOrders
+    order by 1"
+  ) # %>% View()
+} else {
   print("Getting Regions from csv")
   file_path = "www/SuperStoreOrders.csv"
   df <- readr::read_csv(file_path) 
@@ -29,6 +32,7 @@ region_list <- as.list(regions$D, regions$R)
 region_list <- append(list("All" = "All"), region_list)
 
 # The following queries are for the select list in the Barcharts -> High Discount Orders tab.
+if(online0) {
 # Step 1:
   highDiscounts <- query(
   data.world(propsfile = "www/.data.world"),
@@ -100,31 +104,54 @@ region_list <- append(list("All" = "All"), region_list)
       inner_join(highDiscountCustomers2LongLat, highDiscounts, by="Order_Id") # %>% View()
     # View(discounts)
 
-OLDdiscounts <- query(
-  data.world(propsfile = "www/.data.world"),
-  dataset="cannata/superstoreorders", type="sql",
-  query="SELECT Customer_Name as CustomerName, s.City as City, states.abbreviation as State, 
-  c.LATITUDE AS Latitude, 
-  c.LONGITUDE AS Longitude, 
-  Order_Id as OrderId, sum(Discount) as sumDiscount
-  FROM SuperStoreOrders s join markmarkoh.`us-state-table`.`state_table.csv/state_table` states
-  ON (s.State = states.name AND s.City = c.NAME) join
-  bryon.`dhs-city-location-example`.`towns.csv/towns` c 
-  ON (states.abbreviation = c.STATE)
-  WHERE Region != 'International'
-  group by Customer_Name, s.City, states.abbreviation, c.LATITUDE, c.LONGITUDE, Order_Id -- Note the absence of LATITUDE and LONGITUDE
-  having sum(Discount) between .3 and .9"
-)  # %>% View()
+  OLDdiscounts <- query(
+    data.world(propsfile = "www/.data.world"),
+    dataset="cannata/superstoreorders", type="sql",
+    query="SELECT Customer_Name as CustomerName, s.City as City, states.abbreviation as State, 
+    c.LATITUDE AS Latitude, 
+    c.LONGITUDE AS Longitude, 
+    Order_Id as OrderId, sum(Discount) as sumDiscount
+    FROM SuperStoreOrders s join markmarkoh.`us-state-table`.`state_table.csv/state_table` states
+    ON (s.State = states.name AND s.City = c.NAME) join
+    bryon.`dhs-city-location-example`.`towns.csv/towns` c 
+    ON (states.abbreviation = c.STATE)
+    WHERE Region != 'International'
+    group by Customer_Name, s.City, states.abbreviation, c.LATITUDE, c.LONGITUDE, Order_Id -- Note the absence of LATITUDE and LONGITUDE
+    having sum(Discount) between .3 and .9"
+  )  # %>% View()
+} else {
+  print("Getting discounts from csv")
+  file_path = "www/SuperStoreOrders.csv"
+  df <- readr::read_csv(file_path) 
+  # Step 1
+  highDiscounts <- df %>% dplyr::filter(Region != 'International') %>% dplyr::group_by(Order_Id) %>% dplyr::summarize(sumDiscount = sum(Discount)) %>% dplyr::filter(sumDiscount >= .3)
+  View(highDiscounts)
+  # Step 2
+  highDiscountCustomers <- df %>% dplyr::filter(Order_Id %in% highDiscounts$Order_Id) %>% dplyr::select(Customer_Name, Customer_Id, City, State, Order_Id, Sales, Discount, Profit) %>% dplyr::group_by(Customer_Name, Customer_Id, City, State, Order_Id) %>% dplyr::summarise(sumSales = sum(Sales), sumProfit = sum(Profit), sumDiscount = sum(Discount))
+  View(highDiscountCustomers)
+}
 
 # The following query is for the select list in the Barcharts -> High Sales Customers tab.
-sales = query(
-  data.world(propsfile = "www/.data.world"),
-  dataset="cannata/superstoreorders", type="sql",
-  query="SELECT Customer_Id as CustomerId, sum(Profit) as sumProfit, sum(Sales) as SumSales
-  from SuperStoreOrders
-  group by Customer_Id
-  having sum(Sales) > 100000"
-) # %>% View()
+if(online0) {
+  sales = query(
+    data.world(propsfile = "www/.data.world"),
+    dataset="cannata/superstoreorders", type="sql",
+    query="SELECT Customer_Id as CustomerId, sum(Profit) as sumProfit, sum(Sales) as SumSales
+    from SuperStoreOrders
+    group by Customer_Id
+    having sum(Sales) > 100000"
+  ) # %>% View()
+} else {
+  print("Getting discounts from csv")
+  file_path = "www/SuperStoreOrders.csv"
+  df <- readr::read_csv(file_path) 
+  # Step 1
+  highDiscounts <- df %>% dplyr::filter(Region != 'International') %>% dplyr::group_by(Order_Id) %>% dplyr::summarize(sumDiscount = sum(Discount)) %>% dplyr::filter(sumDiscount >= .3)
+  View(highDiscounts)
+  # Step 2
+  sales <- df %>% dplyr::filter(Order_Id %in% highDiscounts$Order_Id) %>% dplyr::select(Customer_Name, Customer_Id, City, State, Order_Id, Sales, Discount, Profit) %>% dplyr::group_by(Customer_Name, Customer_Id, City, State, Order_Id) %>% dplyr::summarise(sumSales = sum(Sales), sumProfit = sum(Profit), sumDiscount = sum(Discount))
+  View(sales)
+}
 
 shinyServer(function(input, output) { 
   # These widgets are for the Crosstabs tab.
@@ -265,11 +292,12 @@ shinyServer(function(input, output) {
           " Discount: ", ", ", discounts$sumDiscount)) )
   })
   
-  output$barchartPlot2 <- renderPlotly({p <- ggplot(sales, aes(x=as.character(CustomerId), y=sumProfit)) +
+  output$barchartPlot2 <- renderPlot({p <- ggplot(sales, aes(x=as.character(Customer_Id), y=sumProfit)) +
       theme(axis.text.x=element_text(angle=0, size=12, vjust=0.5)) + 
       theme(axis.text.y=element_text(size=12, hjust=0.5)) +
       geom_bar(stat = "identity")
-      ggplotly(p)
+  p
+      #ggplotly(p)
   })
   # End Barchart Tab ___________________________________________________________
   
