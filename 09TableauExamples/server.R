@@ -120,10 +120,17 @@ if(online0) {
     having sum(Discount) between .3 and .9"
   )  # %>% View()
 } else {
-  print("Getting discounts from csv")
-  file_path = "www/SuperStoreOrders.csv"
-  df <- readr::read_csv(file_path)
-  # TBD
+  # Just faking one data point for now.
+  Customer_Name = 'Wesley Tate'
+  City = 'Chicago'
+  State = 'Illinois'
+  Order_Id = 48452
+  Abbreviation = 'IL'
+  Latitude =  41.85003
+  Longitude = -87.65005
+  sumDiscount = 0.34
+  sumSales = 7124
+  discounts <- data.frame(Customer_Name, City, State, Order_Id, Abbreviation, Latitude, Longitude, sumDiscount, sumSales)
 }
 
 # The following query is for the select list in the Barcharts -> High Sales Customers tab.
@@ -185,23 +192,9 @@ shinyServer(function(input, output) {
       query(
         data.world(propsfile = "www/.data.world"),
         dataset="cannata/superstoreorders", type="sql",
-        query="select Category, State, 
-        sum(Profit) as sum_profit, 
-        sum(Sales) as sum_sales, 
-        sum(Profit) / sum(Sales) as ratio,
-        
-        case
-        when sum(Profit) / sum(Sales) < ? then '03 Low'
-        when sum(Profit) / sum(Sales) < ? then '02 Medium'
-        else '01 High'
-        end AS kpi
-        
+        query="select Sales, Profit, State
         from SuperStoreOrders
-        where Country_Region = 'United States of America' and
-        Category in ('Chairs  and  Chairmats', 'Office Machines', 'Tables', 'Telephones and Communication')
-        group by Category, State
-        order by Category, State",
-        queryParameters = list(KPI_Low(), KPI_Medium())
+        where State = 'Texas' or State = 'Florida'"
       ) # %>% View()
     }
     else {
