@@ -172,7 +172,13 @@ if(online0) {
   # View(sales)
 }
 
-shinyServer(function(input, output) {  
+shinyServer(function(input, output) {   
+  # These widgets are for the Box Plots tab.
+  online5 = reactive({input$rb5})
+  
+  # These widgets are for the Histogram tab.
+  online4 = reactive({input$rb4})
+  
   # These widgets are for the Scatter Plots tab.
   online3 = reactive({input$rb3})
   
@@ -184,6 +190,65 @@ shinyServer(function(input, output) {
   # These widgets are for the Barcharts tab.
   online2 = reactive({input$rb2})
   output$regions2 <- renderUI({selectInput("selectedRegions", "Choose Regions:", region_list, multiple = TRUE, selected='All') })
+  
+  # Begin Box Plot Tab ------------------------------------------------------------------
+  df5 <- eventReactive(input$click5, {
+    if(online5() == "SQL") {
+      print("Getting from data.world")
+      query(
+        data.world(propsfile = "www/.data.world"),
+        dataset="cannata/superstoreorders", type="sql",
+        query="select Category, Sales, Region
+        from SuperStoreOrders"
+      ) # %>% View()
+    }
+    else {
+      print("Getting from csv")
+      file_path = "www/SuperStoreOrders.csv"
+      df <- readr::read_csv(file_path)
+      df %>% dplyr::select(Category, Sales, Region) # %>% View()
+    }
+    })
+  output$boxplotData1 <- renderDataTable({DT::datatable(df5(), rownames = FALSE,
+                                                  extensions = list(Responsive = TRUE, 
+                                                  FixedHeader = TRUE)
+  )
+  })
+  output$boxplotPlot1 <- renderPlot({ggplot(df5()) + 
+      geom_boxplot(aes(x=Category, y=Sales, colour=Region)) +
+      theme(axis.text.x=element_text(angle=90, size=10, vjust=0.5))
+  })
+  # End Box Plot Tab ___________________________________________________________
+  
+  # Begin Histgram Tab ------------------------------------------------------------------
+  df4 <- eventReactive(input$click4, {
+    if(online4() == "SQL") {
+      print("Getting from data.world")
+      query(
+        data.world(propsfile = "www/.data.world"),
+        dataset="cannata/superstoreorders", type="sql",
+        query="select Shipping_Cost, Container
+        from SuperStoreOrders
+        where Container = 'Small Box'"
+      ) # %>% View()
+    }
+    else {
+      print("Getting from csv")
+      file_path = "www/SuperStoreOrders.csv"
+      df <- readr::read_csv(file_path)
+      df %>% dplyr::select(Shipping_Cost, Container) %>% dplyr::filter(Container == 'Small Box') # %>% View()
+    }
+    })
+  output$histogramData1 <- renderDataTable({DT::datatable(df4(), rownames = FALSE,
+                                                  extensions = list(Responsive = TRUE, 
+                                                  FixedHeader = TRUE)
+  )
+  })
+  output$histogramPlot1 <- renderPlot({ggplot(df4()) +
+      geom_histogram(aes(x=Shipping_Cost)) +
+      theme(axis.text.x=element_text(angle=90, size=10, vjust=0.5))
+  })
+  # End Histogram Tab ___________________________________________________________
   
   # Begin Scatter Plots Tab ------------------------------------------------------------------
   df3 <- eventReactive(input$click3, {
@@ -206,7 +271,7 @@ shinyServer(function(input, output) {
   })
   output$scatterData1 <- renderDataTable({DT::datatable(df3(), rownames = FALSE,
                                                  extensions = list(Responsive = TRUE, 
-                                                                   FixedHeader = TRUE)
+                                                 FixedHeader = TRUE)
   )
   })
   output$scatterPlot1 <- renderPlot({ggplot(df3()) + 

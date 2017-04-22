@@ -10,6 +10,8 @@ dashboardPage(
   ),
   dashboardSidebar(
     sidebarMenu(
+      menuItem("Box Plots", tabName = "boxplot", icon = icon("dashboard")),
+      menuItem("Histograms", tabName = "histogram", icon = icon("dashboard")),
       menuItem("Scatter Plots", tabName = "scatter", icon = icon("dashboard")),
       menuItem("Crosstabs, KPIs, Parameters", tabName = "crosstab", icon = icon("dashboard")),
       menuItem("Barcharts, Table Calculations", tabName = "barchart", icon = icon("dashboard"))
@@ -17,6 +19,36 @@ dashboardPage(
   ),
   dashboardBody(    
     tabItems(
+      # Begin Box Plots tab content.
+      tabItem(tabName = "boxplot",
+              tabsetPanel(
+                tabPanel("Data",  
+                         radioButtons("rb5", "Get data from:",
+                                      c("SQL" = "SQL",
+                                        "CSV" = "CSV"), inline=T),
+                         actionButton(inputId = "click5",  label = "To get data, click here"),
+                         hr(), # Add space after button.
+                         DT::dataTableOutput("boxplotData1")
+                ),
+                tabPanel("Simple Box Plot", plotOutput("boxplotPlot1", height=1000))
+              )
+      ),
+      # End Box Plots tab content.
+      # Begin Histogram tab content.
+      tabItem(tabName = "histogram",
+              tabsetPanel(
+                tabPanel("Data",  
+                         radioButtons("rb4", "Get data from:",
+                                      c("SQL" = "SQL",
+                                        "CSV" = "CSV"), inline=T),
+                         actionButton(inputId = "click4",  label = "To get data, click here"),
+                         hr(), # Add space after button.
+                         DT::dataTableOutput("histogramData1")
+                ),
+                tabPanel("Simple Histogram", plotOutput("histogramPlot1", height=1000))
+              )
+      ),
+      # End Histograms tab content.
       # Begin Scatter Plots tab content.
       tabItem(tabName = "scatter",
               tabsetPanel(
@@ -28,7 +60,7 @@ dashboardPage(
                          hr(), # Add space after button.
                          DT::dataTableOutput("scatterData1")
                 ),
-                tabPanel("Scatter Plot", plotOutput("scatterPlot1", height=1000))
+                tabPanel("Simple Scatter Plot", plotOutput("scatterPlot1", height=1000))
               )
       ),
       # End Scatter Plots tab content.
