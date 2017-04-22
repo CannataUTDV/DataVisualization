@@ -9,7 +9,7 @@ require(DT)
 require(leaflet)
 require(plotly)
 
-online0 = FALSE
+online0 = TRUE
 
 # The following query is for the select list in the Barcharts -> Barchart with Table Calculation tab.
 if(online0) {
@@ -122,34 +122,46 @@ if(online0) {
 } else {
   print("Getting discounts from csv")
   file_path = "www/SuperStoreOrders.csv"
-  df <- readr::read_csv(file_path) 
-  # Step 1
-  highDiscounts <- df %>% dplyr::filter(Region != 'International') %>% dplyr::group_by(Order_Id) %>% dplyr::summarize(sumDiscount = sum(Discount)) %>% dplyr::filter(sumDiscount >= .3)
-  #View(highDiscounts)
-  # Step 2
-  highDiscountCustomers <- df %>% dplyr::filter(Order_Id %in% highDiscounts$Order_Id) %>% dplyr::select(Customer_Name, Customer_Id, City, State, Order_Id, Sales, Discount, Profit) %>% dplyr::group_by(Customer_Name, Customer_Id, City, State, Order_Id) %>% dplyr::summarise(sumSales = sum(Sales), sumProfit = sum(Profit), sumDiscount = sum(Discount))
-  #View(highDiscountCustomers)
+  df <- readr::read_csv(file_path)
+  # TBD
 }
 
 # The following query is for the select list in the Barcharts -> High Sales Customers tab.
 if(online0) {
-  sales = query(
+  # Step 1:
+  highDiscounts <- query(
     data.world(propsfile = "www/.data.world"),
     dataset="cannata/superstoreorders", type="sql",
-    query="SELECT Customer_Id as CustomerId, sum(Profit) as sumProfit, sum(Sales) as SumSales
-    from SuperStoreOrders
-    group by Customer_Id
-    having sum(Sales) > 100000"
+    query="
+    SELECT distinct Order_Id, sum(Discount) as sumDiscount
+    FROM SuperStoreOrders
+    group by Order_Id
+    having sum(Discount) >= .3"
   ) # %>% View()
+  # View(highDiscounts)
+  
+  # Step 2
+  sales <- query(
+    data.world(propsfile = "www/.data.world"),
+    dataset="cannata/superstoreorders", type="sql",
+    query="
+    select Customer_Id, sum(Profit) as sumProfit
+    FROM SuperStoreOrders
+    where Order_Id in 
+      (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    group by Customer_Id",
+    queryParameters = highDiscounts$Order_Id
+    ) # %>% View()
+  # View(sales)
 } else {
   print("Getting discounts from csv")
   file_path = "www/SuperStoreOrders.csv"
   df <- readr::read_csv(file_path) 
   # Step 1
-  highDiscounts <- df %>% dplyr::filter(Region != 'International') %>% dplyr::group_by(Order_Id) %>% dplyr::summarize(sumDiscount = sum(Discount)) %>% dplyr::filter(sumDiscount >= .3)
+  highDiscounts <- df %>% dplyr::group_by(Order_Id) %>% dplyr::summarize(sumDiscount = sum(Discount)) %>% dplyr::filter(sumDiscount >= .3)
   # View(highDiscounts)
   # Step 2
-  sales <- df %>% dplyr::filter(Order_Id %in% highDiscounts$Order_Id) %>% dplyr::select(Customer_Name, Customer_Id, City, State, Order_Id, Sales, Discount, Profit) %>% dplyr::group_by(Customer_Name, Customer_Id, City, State, Order_Id) %>% dplyr::summarise(sumSales = sum(Sales), sumProfit = sum(Profit), sumDiscount = sum(Discount))
+  sales <- df %>% dplyr::filter(Order_Id %in% highDiscounts$Order_Id) %>% dplyr::select(Customer_Name, Customer_Id, City, State, Order_Id, Profit) %>% dplyr::group_by(Customer_Name, Customer_Id, City, State, Order_Id) %>% dplyr::summarise(sumProfit = sum(Profit))
   # View(sales)
 }
 
