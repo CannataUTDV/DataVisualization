@@ -10,12 +10,28 @@ dashboardPage(
   ),
   dashboardSidebar(
     sidebarMenu(
+      menuItem("Scatter Plots", tabName = "scatter", icon = icon("dashboard")),
       menuItem("Crosstabs, KPIs, Parameters", tabName = "crosstab", icon = icon("dashboard")),
       menuItem("Barcharts, Table Calculations", tabName = "barchart", icon = icon("dashboard"))
     )
   ),
   dashboardBody(    
     tabItems(
+      # Begin Scatter Plots tab content.
+      tabItem(tabName = "scatter",
+              tabsetPanel(
+                tabPanel("Data",  
+                         radioButtons("rb3", "Get data from:",
+                                      c("SQL" = "SQL",
+                                        "CSV" = "CSV"), inline=T),
+                         actionButton(inputId = "click3",  label = "To get data, click here"),
+                         hr(), # Add space after button.
+                         DT::dataTableOutput("scatterData1")
+                ),
+                tabPanel("Scatter Plot", plotOutput("scatterPlot1", height=1000))
+              )
+      ),
+      # End Scatter Plots tab content.
       # Begin Crosstab tab content.
       tabItem(tabName = "crosstab",
         tabsetPanel(
@@ -59,7 +75,7 @@ dashboardPage(
           ),
           tabPanel("Barchart with Table Calculation", "Black = Sum of Sales per Region, Red = Average Sum of Sales per Category, and  Blue = (Sum of Sales per Region - Average Sum of Sales per Category)", plotOutput("barchartPlot1", height=1500)),
           tabPanel("High Discount Orders", leafletOutput("barchartMap1"), height=900 ),
-          tabPanel("High Sales Customers", plotOutput("barchartPlot2", height=700) )
+          tabPanel("High Sales Customers", plotlyOutput("barchartPlot2", height=700) )
         )
       )
       # End Barchart tab content.

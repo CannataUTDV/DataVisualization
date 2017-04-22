@@ -125,10 +125,10 @@ if(online0) {
   df <- readr::read_csv(file_path) 
   # Step 1
   highDiscounts <- df %>% dplyr::filter(Region != 'International') %>% dplyr::group_by(Order_Id) %>% dplyr::summarize(sumDiscount = sum(Discount)) %>% dplyr::filter(sumDiscount >= .3)
-  View(highDiscounts)
+  #View(highDiscounts)
   # Step 2
   highDiscountCustomers <- df %>% dplyr::filter(Order_Id %in% highDiscounts$Order_Id) %>% dplyr::select(Customer_Name, Customer_Id, City, State, Order_Id, Sales, Discount, Profit) %>% dplyr::group_by(Customer_Name, Customer_Id, City, State, Order_Id) %>% dplyr::summarise(sumSales = sum(Sales), sumProfit = sum(Profit), sumDiscount = sum(Discount))
-  View(highDiscountCustomers)
+  #View(highDiscountCustomers)
 }
 
 # The following query is for the select list in the Barcharts -> High Sales Customers tab.
@@ -147,13 +147,16 @@ if(online0) {
   df <- readr::read_csv(file_path) 
   # Step 1
   highDiscounts <- df %>% dplyr::filter(Region != 'International') %>% dplyr::group_by(Order_Id) %>% dplyr::summarize(sumDiscount = sum(Discount)) %>% dplyr::filter(sumDiscount >= .3)
-  View(highDiscounts)
+  # View(highDiscounts)
   # Step 2
   sales <- df %>% dplyr::filter(Order_Id %in% highDiscounts$Order_Id) %>% dplyr::select(Customer_Name, Customer_Id, City, State, Order_Id, Sales, Discount, Profit) %>% dplyr::group_by(Customer_Name, Customer_Id, City, State, Order_Id) %>% dplyr::summarise(sumSales = sum(Sales), sumProfit = sum(Profit), sumDiscount = sum(Discount))
-  View(sales)
+  # View(sales)
 }
 
-shinyServer(function(input, output) { 
+shinyServer(function(input, output) {  
+  # These widgets are for the Scatter Plots tab.
+  online3 = reactive({input$rb3})
+  
   # These widgets are for the Crosstabs tab.
   online1 = reactive({input$rb1})
   KPI_Low = reactive({input$KPI1})     
@@ -162,6 +165,51 @@ shinyServer(function(input, output) {
   # These widgets are for the Barcharts tab.
   online2 = reactive({input$rb2})
   output$regions2 <- renderUI({selectInput("selectedRegions", "Choose Regions:", region_list, multiple = TRUE, selected='All') })
+  
+  # Begin Scatter Plots Tab ------------------------------------------------------------------
+  df3 <- eventReactive(input$click3, {
+    if(online3() == "SQL") {
+      print("Getting from data.world")
+      query(
+        data.world(propsfile = "www/.data.world"),
+        dataset="cannata/superstoreorders", type="sql",
+        query="select Category, State, 
+        sum(Profit) as sum_profit, 
+        sum(Sales) as sum_sales, 
+        sum(Profit) / sum(Sales) as ratio,
+        
+        case
+        when sum(Profit) / sum(Sales) < ? then '03 Low'
+        when sum(Profit) / sum(Sales) < ? then '02 Medium'
+        else '01 High'
+        end AS kpi
+        
+        from SuperStoreOrders
+        where Country_Region = 'United States of America' and
+        Category in ('Chairs  and  Chairmats', 'Office Machines', 'Tables', 'Telephones and Communication')
+        group by Category, State
+        order by Category, State",
+        queryParameters = list(KPI_Low(), KPI_Medium())
+      ) # %>% View()
+    }
+    else {
+      print("Getting from csv")
+      file_path = "www/SuperStoreOrders.csv"
+      df <- readr::read_csv(file_path)
+      df %>% dplyr::select(Sales, Profit, State) %>% dplyr::filter(State == 'Texas' | State == 'Florida') # %>% View()
+    }
+  })
+  output$scatterData1 <- renderDataTable({DT::datatable(df3(), rownames = FALSE,
+                                                 extensions = list(Responsive = TRUE, 
+                                                                   FixedHeader = TRUE)
+  )
+  })
+  output$scatterPlot1 <- renderPlot({ggplot(df3()) + 
+      theme(axis.text.x=element_text(angle=90, size=16, vjust=0.5)) + 
+      theme(axis.text.y=element_text(size=16, hjust=0.5)) +
+      geom_point(aes(x=Sales, y=Profit, colour=State), size=2)
+  })
+  # End Scatter Plots Tab ___________________________________________________________
   
 # Begin Crosstab Tab ------------------------------------------------------------------
   df1 <- eventReactive(input$click1, {
@@ -292,12 +340,23 @@ shinyServer(function(input, output) {
           " Discount: ", ", ", discounts$sumDiscount)) )
   })
   
-  output$barchartPlot2 <- renderPlot({p <- ggplot(sales, aes(x=as.character(Customer_Id), y=sumProfit)) +
+  output$barchartPlot2 <- renderPlotly({
+    # The following ggplotly code doesn't work when sumProfit is negative.
+    p <- ggplot(sales, aes(x=as.character(Customer_Id), y=sumProfit)) +
       theme(axis.text.x=element_text(angle=0, size=12, vjust=0.5)) + 
       theme(axis.text.y=element_text(size=12, hjust=0.5)) +
       geom_bar(stat = "identity")
-  p
-      #ggplotly(p)
+    ggplotly(p)
+    # So, using plot_ly instead.
+    plot_ly(
+      data = sales,
+      x = ~as.character(Customer_Id),
+      y = ~sumProfit,
+      type = "bar"
+      ) %>%
+      layout(
+        xaxis = list(type="category", categoryorder="category ascending")
+      )
   })
   # End Barchart Tab ___________________________________________________________
   
