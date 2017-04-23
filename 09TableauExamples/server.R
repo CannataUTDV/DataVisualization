@@ -214,7 +214,7 @@ shinyServer(function(input, output) {
       print("Getting from csv")
       file_path = "www/SuperStoreOrders.csv"
       df <- readr::read_csv(file_path)
-      df %>% dplyr::select(Category, Sales, Region) %>% dplyr::filter(Sales >= input$range5[1] & Sales <= input$range5[2]) # %>% View()
+      df %>% dplyr::select(Category, Sales, Region) %>% dplyr::filter(Region %in% input$selectedRegions5 | input$selectedRegions5 == "All") %>% dplyr::filter(Sales >= input$range5[1] & Sales <= input$range5[2]) # %>% View()
     }
     })
   
