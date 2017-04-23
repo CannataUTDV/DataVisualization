@@ -214,14 +214,16 @@ shinyServer(function(input, output) {
       print("Getting from csv")
       file_path = "www/SuperStoreOrders.csv"
       df <- readr::read_csv(file_path)
-      df %>% dplyr::select(Category, Sales, Region) # %>% View()
+      df %>% dplyr::select(Category, Sales, Region) %>% dplyr::filter(Sales >= input$range5[1] & Sales <= input$range5[2]) # %>% View()
     }
     })
+  
   output$boxplotData1 <- renderDataTable({DT::datatable(df5(), rownames = FALSE,
                                                   extensions = list(Responsive = TRUE, 
                                                   FixedHeader = TRUE)
-  )
+    )
   })
+    
   output$boxplotPlot1 <- renderPlotly({p <- ggplot(df5()) + 
       geom_boxplot(aes(x=Category, y=Sales, colour=Region)) +
       theme(axis.text.x=element_text(angle=90, size=10, vjust=0.5))
@@ -248,11 +250,13 @@ shinyServer(function(input, output) {
       df %>% dplyr::select(Shipping_Cost, Container) %>% dplyr::filter(Container == 'Small Box') # %>% View()
     }
     })
+  
   output$histogramData1 <- renderDataTable({DT::datatable(df4(), rownames = FALSE,
                                                   extensions = list(Responsive = TRUE, 
                                                   FixedHeader = TRUE)
   )
   })
+  
   output$histogramPlot1 <- renderPlotly({p <- ggplot(df4()) +
       geom_histogram(aes(x=Shipping_Cost)) +
       theme(axis.text.x=element_text(angle=90, size=10, vjust=0.5))
