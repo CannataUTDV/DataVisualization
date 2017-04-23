@@ -30,16 +30,16 @@ dashboardPage(
                          radioButtons("rb5", "Get data from:",
                                       c("SQL" = "SQL",
                                         "CSV" = "CSV"), inline=T),
-                         uiOutput("regions5"), # See http://shiny.rstudio.com/gallery/dynamic-ui.html,
+                         uiOutput("boxplotRegions"), # See http://shiny.rstudio.com/gallery/dynamic-ui.html,
                          actionButton(inputId = "click5",  label = "To get data, click here"),
                          hr(), # Add space after button.
                          DT::dataTableOutput("boxplotData1")
                 ),
                 tabPanel("Simple Box Plot", 
-                         sliderInput("range5", "Sales Range:", # See https://shiny.rstudio.com/articles/sliders.html
+                         sliderInput("boxSalesRange1", "Sales Range:", # See https://shiny.rstudio.com/articles/sliders.html
                                      min = 0, max = 100200, value = c(0,100200)),
-                         sliderInput("range5a", "Looping Animation:", 0, 100200, 100200, 
-                                     step = 5000,
+                         sliderInput("range5a", "Looping Animation:", 2010, 2013, 2010, 
+                                     step = 1,
                                      animate=animationOptions(interval=5000, loop=T)),
                          plotlyOutput("boxplotPlot1", height=500))
               )
@@ -67,6 +67,7 @@ dashboardPage(
                          radioButtons("rb3", "Get data from:",
                                       c("SQL" = "SQL",
                                         "CSV" = "CSV"), inline=T),
+                         uiOutput("scatterStates"), # See http://shiny.rstudio.com/gallery/dynamic-ui.html,
                          actionButton(inputId = "click3",  label = "To get data, click here"),
                          hr(), # Add space after button.
                          DT::dataTableOutput("scatterData1")

@@ -8,8 +8,9 @@ require(readr)
 require(DT)
 require(leaflet)
 require(plotly)
+require(lubridate)
 
-online0 = FALSE
+online0 = TRUE
 
 # The following query is for the select list in the Boxplots -> Simple Boxplot tab, and Barcharts -> Barchart with Table Calculation tab.
 if(online0) {
@@ -178,7 +179,7 @@ if(online0) {
 shinyServer(function(input, output) {   
   # These widgets are for the Box Plots tab.
   online5 = reactive({input$rb5})
-  output$regions5 <- renderUI({selectInput("selectedRegions5", "Choose Regions:", region_list5, multiple = TRUE, selected='All') })
+  output$boxplotRegions <- renderUI({selectInput("selectedBoxplotRegions", "Choose Regions:", region_list5, multiple = TRUE, selected='All') })
   
   # These widgets are for the Histogram tab.
   online4 = reactive({input$rb4})
@@ -197,8 +198,8 @@ shinyServer(function(input, output) {
   
   # Begin Box Plot Tab ------------------------------------------------------------------
   dfbp1 <- eventReactive(input$click5, {
-    if(input$selectedRegions5 == 'All') region_list <- input$selectedRegions5
-    else region_list5 <- append(list("Skip" = "Skip"), input$selectedRegions5)
+    if(input$selectedBoxplotRegions == 'All') region_list <- input$selectedBoxplotRegions
+    else region_list5 <- append(list("Skip" = "Skip"), input$selectedBoxplotRegions)
     if(online5() == "SQL") {
       print("Getting from data.world")
       df <- query(
@@ -213,7 +214,7 @@ shinyServer(function(input, output) {
       print("Getting from csv")
       file_path = "www/SuperStoreOrders.csv"
       df <- readr::read_csv(file_path)
-      df %>% dplyr::select(Category, Sales, Region, Order_Date) %>% dplyr::filter(Region %in% input$selectedRegions5 | input$selectedRegions5 == "All") # %>% View()
+      df %>% dplyr::select(Category, Sales, Region, Order_Date) %>% dplyr::filter(Region %in% input$selectedBoxplotRegions | input$selectedBoxplotRegions == "All") # %>% View()
     }
     })
   
@@ -223,15 +224,18 @@ shinyServer(function(input, output) {
   )
   })
   
-  dfbp2 <- eventReactive(input$range5, {
-    dfbp1() %>% dplyr::filter(Sales >= input$range5[1] & Sales <= input$range5[2]) # %>% View()
+  dfbp2 <- eventReactive(input$boxSalesRange1, {
+    dfbp1() %>% dplyr::filter(Sales >= input$boxSalesRange1[1] & Sales <= input$boxSalesRange1[2]) # %>% View()
   })
   
   dfbp3 <- eventReactive(input$range5a, {
-    dfbp2() %>% dplyr::filter(Sales <= input$range5a) # %>% View()
+    print(input$range5a)
+    dfbp2() %>% dplyr::filter(lubridate::year(Order_Date) == input$range5a) %>% dplyr::arrange(desc(Order_Date)) # %>% View()
   })
     
-  output$boxplotPlot1 <- renderPlotly({p <- ggplot(dfbp3()) + 
+  output$boxplotPlot1 <- renderPlotly({
+    # View(dfbp3())
+    p <- ggplot(dfbp3()) + 
       geom_boxplot(aes(x=Category, y=Sales, colour=Region)) +
       theme(axis.text.x=element_text(angle=90, size=10, vjust=0.5))
     ggplotly(p)
