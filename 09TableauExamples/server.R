@@ -272,7 +272,7 @@ shinyServer(function(input, output) {
   # End Histogram Tab ___________________________________________________________
   
   # Begin Scatter Plots Tab ------------------------------------------------------------------
-  df3 <- eventReactive(input$click3, {
+  dfsc1 <- eventReactive(input$click3, {
     if(online3() == "SQL") {
       print("Getting from data.world")
       query(
@@ -290,12 +290,12 @@ shinyServer(function(input, output) {
       df %>% dplyr::select(Sales, Profit, State) %>% dplyr::filter(State == 'Texas' | State == 'Florida') # %>% View()
     }
   })
-  output$scatterData1 <- renderDataTable({DT::datatable(df3(), rownames = FALSE,
+  output$scatterData1 <- renderDataTable({DT::datatable(dfsc1(), rownames = FALSE,
                                                  extensions = list(Responsive = TRUE, 
                                                  FixedHeader = TRUE)
   )
   })
-  output$scatterPlot1 <- renderPlotly({p <- ggplot(df3()) + 
+  output$scatterPlot1 <- renderPlotly({p <- ggplot(dfsc1()) + 
       theme(axis.text.x=element_text(angle=90, size=16, vjust=0.5)) + 
       theme(axis.text.y=element_text(size=16, hjust=0.5)) +
       geom_point(aes(x=Sales, y=Profit, colour=State), size=2)
@@ -304,7 +304,7 @@ shinyServer(function(input, output) {
   # End Scatter Plots Tab ___________________________________________________________
   
 # Begin Crosstab Tab ------------------------------------------------------------------
-  df1 <- eventReactive(input$click1, {
+  dfct1 <- eventReactive(input$click1, {
       if(online1() == "SQL") {
         print("Getting from data.world")
         query(
@@ -346,11 +346,11 @@ shinyServer(function(input, output) {
                            if_else(ratio <= KPI_Medium(), '02 Medium', '01 High'))) # %>% View()
       }
   })
-  output$data1 <- renderDataTable({DT::datatable(df1(), rownames = FALSE,
+  output$data1 <- renderDataTable({DT::datatable(dfct1(), rownames = FALSE,
                                 extensions = list(Responsive = TRUE, FixedHeader = TRUE)
   )
   })
-  output$plot1 <- renderPlot({ggplot(df1()) + 
+  output$plot1 <- renderPlot({ggplot(dfct1()) + 
     theme(axis.text.x=element_text(angle=90, size=16, vjust=0.5)) + 
     theme(axis.text.y=element_text(size=16, hjust=0.5)) +
     geom_text(aes(x=Category, y=State, label=sum_sales), size=6) +
@@ -358,7 +358,7 @@ shinyServer(function(input, output) {
   })
 # End Crosstab Tab ___________________________________________________________
 # Begin Barchart Tab ------------------------------------------------------------------
-  df2 <- eventReactive(input$click2, {
+  dfbc1 <- eventReactive(input$click2, {
     if(input$selectedRegions == 'All') region_list <- input$selectedRegions
     else region_list <- append(list("Skip" = "Skip"), input$selectedRegions)
     if(online2() == "SQL") {
@@ -391,7 +391,7 @@ shinyServer(function(input, output) {
       #       from SuperStoreOrders
       #      group by Category, Region)
   })
-  output$barchartData1 <- renderDataTable({DT::datatable(df2(),
+  output$barchartData1 <- renderDataTable({DT::datatable(dfbc1(),
                         rownames = FALSE,
                         extensions = list(Responsive = TRUE, FixedHeader = TRUE) )
   })
@@ -403,7 +403,7 @@ shinyServer(function(input, output) {
                         rownames = FALSE,
                         extensions = list(Responsive = TRUE, FixedHeader = TRUE) )
   })
-  output$barchartPlot1 <- renderPlot({ggplot(df2(), aes(x=Region, y=sum_sales)) +
+  output$barchartPlot1 <- renderPlot({ggplot(dfbc1(), aes(x=Region, y=sum_sales)) +
       scale_y_continuous(labels = scales::comma) + # no scientific notation
       theme(axis.text.x=element_text(angle=0, size=12, vjust=0.5)) + 
       theme(axis.text.y=element_text(size=12, hjust=0.5)) +
