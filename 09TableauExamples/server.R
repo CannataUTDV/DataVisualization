@@ -11,7 +11,7 @@ require(plotly)
 
 online0 = TRUE
 
-# The following query is for the select list in the Barcharts -> Barchart with Table Calculation tab.
+# The following query is for the select list in the Boxplots -> Simple Boxplot tab, and Barcharts -> Barchart with Table Calculation tab.
 if(online0) {
   regions = query(
     data.world(propsfile = "www/.data.world"),
@@ -30,6 +30,7 @@ if(online0) {
 }
 region_list <- as.list(regions$D, regions$R)
 region_list <- append(list("All" = "All"), region_list)
+region_list5 <- region_list
 
 # The following queries are for the Barcharts -> High Discount Orders tab data.
 if(online0) {
@@ -172,9 +173,12 @@ if(online0) {
   # View(sales)
 }
 
+############################### Start shinyServer Function ####################
+
 shinyServer(function(input, output) {   
   # These widgets are for the Box Plots tab.
   online5 = reactive({input$rb5})
+  output$regions5 <- renderUI({selectInput("selectedRegions5", "Choose Regions:", region_list5, multiple = TRUE, selected='All') })
   
   # These widgets are for the Histogram tab.
   online4 = reactive({input$rb4})
@@ -193,13 +197,17 @@ shinyServer(function(input, output) {
   
   # Begin Box Plot Tab ------------------------------------------------------------------
   df5 <- eventReactive(input$click5, {
+    if(input$selectedRegions5 == 'All') region_list <- input$selectedRegions5
+    else region_list5 <- append(list("Skip" = "Skip"), input$selectedRegions5)
     if(online5() == "SQL") {
       print("Getting from data.world")
       query(
         data.world(propsfile = "www/.data.world"),
         dataset="cannata/superstoreorders", type="sql",
         query="select Category, Sales, Region
-        from SuperStoreOrders"
+        from SuperStoreOrders
+        where ? = 'All' or Region in (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        queryParameters = region_list5
       ) # %>% View()
     }
     else {
