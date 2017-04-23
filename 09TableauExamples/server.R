@@ -31,7 +31,7 @@ if(online0) {
 region_list <- as.list(regions$D, regions$R)
 region_list <- append(list("All" = "All"), region_list)
 
-# The following queries are for the select list in the Barcharts -> High Discount Orders tab.
+# The following queries are for the Barcharts -> High Discount Orders tab data.
 if(online0) {
 # Step 1:
   highDiscounts <- query(
@@ -133,7 +133,7 @@ if(online0) {
   discounts <- data.frame(Customer_Name, City, State, Order_Id, Abbreviation, Latitude, Longitude, sumDiscount, sumSales)
 }
 
-# The following query is for the select list in the Barcharts -> High Sales Customers tab.
+# The following query is for the Barcharts -> High Sales Customers tab data.
 if(online0) {
   # Step 1:
   highDiscounts <- query(
