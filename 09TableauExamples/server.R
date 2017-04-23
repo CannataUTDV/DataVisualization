@@ -196,19 +196,19 @@ shinyServer(function(input, output) {
   output$regions2 <- renderUI({selectInput("selectedRegions", "Choose Regions:", region_list, multiple = TRUE, selected='All') })
   
   # Begin Box Plot Tab ------------------------------------------------------------------
-  df5 <- eventReactive(input$click5, {
+  df5 <- eventReactive(c(input$click5, input$range5), {
     if(input$selectedRegions5 == 'All') region_list <- input$selectedRegions5
     else region_list5 <- append(list("Skip" = "Skip"), input$selectedRegions5)
     if(online5() == "SQL") {
       print("Getting from data.world")
-      query(
+      df <- query(
         data.world(propsfile = "www/.data.world"),
         dataset="cannata/superstoreorders", type="sql",
         query="select Category, Sales, Region
         from SuperStoreOrders
-        where ? = 'All' or Region in (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-        queryParameters = region_list5
-      ) # %>% View()
+        where (? = 'All' or Region in (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?))",
+        queryParameters = region_list5 )
+        df %>% dplyr::filter(Sales >= input$range5[1] & Sales <= input$range5[2]) # %>% View()
     }
     else {
       print("Getting from csv")
