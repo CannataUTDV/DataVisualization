@@ -214,9 +214,10 @@ shinyServer(function(input, output) {
                                                   FixedHeader = TRUE)
   )
   })
-  output$boxplotPlot1 <- renderPlot({ggplot(df5()) + 
+  output$boxplotPlot1 <- renderPlotly({p <- ggplot(df5()) + 
       geom_boxplot(aes(x=Category, y=Sales, colour=Region)) +
       theme(axis.text.x=element_text(angle=90, size=10, vjust=0.5))
+    ggplotly(p)
   })
   # End Box Plot Tab ___________________________________________________________
   
@@ -244,9 +245,10 @@ shinyServer(function(input, output) {
                                                   FixedHeader = TRUE)
   )
   })
-  output$histogramPlot1 <- renderPlot({ggplot(df4()) +
+  output$histogramPlot1 <- renderPlotly({p <- ggplot(df4()) +
       geom_histogram(aes(x=Shipping_Cost)) +
       theme(axis.text.x=element_text(angle=90, size=10, vjust=0.5))
+      ggplotly(p)
   })
   # End Histogram Tab ___________________________________________________________
   
@@ -274,10 +276,11 @@ shinyServer(function(input, output) {
                                                  FixedHeader = TRUE)
   )
   })
-  output$scatterPlot1 <- renderPlot({ggplot(df3()) + 
+  output$scatterPlot1 <- renderPlotly({p <- ggplot(df3()) + 
       theme(axis.text.x=element_text(angle=90, size=16, vjust=0.5)) + 
       theme(axis.text.y=element_text(size=16, hjust=0.5)) +
       geom_point(aes(x=Sales, y=Profit, colour=State), size=2)
+      ggplotly(p)
   })
   # End Scatter Plots Tab ___________________________________________________________
   

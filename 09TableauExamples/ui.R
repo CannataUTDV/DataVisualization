@@ -30,7 +30,7 @@ dashboardPage(
                          hr(), # Add space after button.
                          DT::dataTableOutput("boxplotData1")
                 ),
-                tabPanel("Simple Box Plot", plotOutput("boxplotPlot1", height=1000))
+                tabPanel("Simple Box Plot", plotlyOutput("boxplotPlot1", height=1000))
               )
       ),
       # End Box Plots tab content.
@@ -45,7 +45,7 @@ dashboardPage(
                          hr(), # Add space after button.
                          DT::dataTableOutput("histogramData1")
                 ),
-                tabPanel("Simple Histogram", plotOutput("histogramPlot1", height=1000))
+                tabPanel("Simple Histogram", plotlyOutput("histogramPlot1", height=1000))
               )
       ),
       # End Histograms tab content.
@@ -60,7 +60,7 @@ dashboardPage(
                          hr(), # Add space after button.
                          DT::dataTableOutput("scatterData1")
                 ),
-                tabPanel("Simple Scatter Plot", plotOutput("scatterPlot1", height=1000))
+                tabPanel("Simple Scatter Plot", plotlyOutput("scatterPlot1", height=1000))
               )
       ),
       # End Scatter Plots tab content.
