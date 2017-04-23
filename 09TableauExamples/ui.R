@@ -17,7 +17,11 @@ dashboardPage(
       menuItem("Barcharts, Table Calculations", tabName = "barchart", icon = icon("dashboard"))
     )
   ),
-  dashboardBody(    
+  dashboardBody(
+    tags$style(type="text/css",
+               ".shiny-output-error { visibility: hidden; }",
+               ".shiny-output-error:before { visibility: hidden; }"
+    ),    
     tabItems(
       # Begin Box Plots tab content.
       tabItem(tabName = "boxplot",
