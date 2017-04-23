@@ -9,7 +9,7 @@ require(DT)
 require(leaflet)
 require(plotly)
 
-online0 = TRUE
+online0 = FALSE
 
 # The following query is for the select list in the Boxplots -> Simple Boxplot tab, and Barcharts -> Barchart with Table Calculation tab.
 if(online0) {
@@ -196,7 +196,7 @@ shinyServer(function(input, output) {
   output$regions2 <- renderUI({selectInput("selectedRegions", "Choose Regions:", region_list, multiple = TRUE, selected='All') })
   
   # Begin Box Plot Tab ------------------------------------------------------------------
-  df5 <- eventReactive(input$click5, {
+  dfbp1 <- eventReactive(input$click5, {
     if(input$selectedRegions5 == 'All') region_list <- input$selectedRegions5
     else region_list5 <- append(list("Skip" = "Skip"), input$selectedRegions5)
     if(online5() == "SQL") {
@@ -217,17 +217,21 @@ shinyServer(function(input, output) {
     }
     })
   
-  output$boxplotData1 <- renderDataTable({DT::datatable(df5(), rownames = FALSE,
+  output$boxplotData1 <- renderDataTable({DT::datatable(dfbp1(), rownames = FALSE,
                                                 extensions = list(Responsive = TRUE, 
                                                 FixedHeader = TRUE)
   )
   })
   
-  df6 <- eventReactive(input$range5, {
-    df5() %>% dplyr::filter(Sales >= input$range5[1] & Sales <= input$range5[2]) # %>% View()
+  dfbp2 <- eventReactive(input$range5, {
+    dfbp1() %>% dplyr::filter(Sales >= input$range5[1] & Sales <= input$range5[2]) # %>% View()
+  })
+  
+  dfbp3 <- eventReactive(input$range5a, {
+    dfbp2() %>% dplyr::filter(Sales <= input$range5a) # %>% View()
   })
     
-  output$boxplotPlot1 <- renderPlotly({p <- ggplot(df6()) + 
+  output$boxplotPlot1 <- renderPlotly({p <- ggplot(dfbp3()) + 
       geom_boxplot(aes(x=Category, y=Sales, colour=Region)) +
       theme(axis.text.x=element_text(angle=90, size=10, vjust=0.5))
     ggplotly(p)
@@ -235,7 +239,7 @@ shinyServer(function(input, output) {
   # End Box Plot Tab ___________________________________________________________
   
   # Begin Histgram Tab ------------------------------------------------------------------
-  df4 <- eventReactive(input$click4, {
+  dfh1 <- eventReactive(input$click4, {
     if(online4() == "SQL") {
       print("Getting from data.world")
       query(
@@ -254,13 +258,13 @@ shinyServer(function(input, output) {
     }
     })
   
-  output$histogramData1 <- renderDataTable({DT::datatable(df4(), rownames = FALSE,
+  output$histogramData1 <- renderDataTable({DT::datatable(dfh1(), rownames = FALSE,
                                                   extensions = list(Responsive = TRUE, 
                                                   FixedHeader = TRUE)
   )
   })
   
-  output$histogramPlot1 <- renderPlotly({p <- ggplot(df4()) +
+  output$histogramPlot1 <- renderPlotly({p <- ggplot(dfh1()) +
       geom_histogram(aes(x=Shipping_Cost)) +
       theme(axis.text.x=element_text(angle=90, size=10, vjust=0.5))
       ggplotly(p)
