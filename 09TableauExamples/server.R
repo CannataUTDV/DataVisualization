@@ -196,7 +196,7 @@ shinyServer(function(input, output) {
   output$regions2 <- renderUI({selectInput("selectedRegions", "Choose Regions:", region_list, multiple = TRUE, selected='All') })
   
   # Begin Box Plot Tab ------------------------------------------------------------------
-  df5 <- eventReactive(c(input$click5, input$range5), {
+  df5 <- eventReactive(input$click5, {
     if(input$selectedRegions5 == 'All') region_list <- input$selectedRegions5
     else region_list5 <- append(list("Skip" = "Skip"), input$selectedRegions5)
     if(online5() == "SQL") {
@@ -204,27 +204,30 @@ shinyServer(function(input, output) {
       df <- query(
         data.world(propsfile = "www/.data.world"),
         dataset="cannata/superstoreorders", type="sql",
-        query="select Category, Sales, Region
+        query="select Category, Sales, Region, Order_Date
         from SuperStoreOrders
         where (? = 'All' or Region in (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?))",
-        queryParameters = region_list5 )
-        df %>% dplyr::filter(Sales >= input$range5[1] & Sales <= input$range5[2]) # %>% View()
+        queryParameters = region_list5 ) # %>% View()
     }
     else {
       print("Getting from csv")
       file_path = "www/SuperStoreOrders.csv"
       df <- readr::read_csv(file_path)
-      df %>% dplyr::select(Category, Sales, Region) %>% dplyr::filter(Region %in% input$selectedRegions5 | input$selectedRegions5 == "All") %>% dplyr::filter(Sales >= input$range5[1] & Sales <= input$range5[2]) # %>% View()
+      df %>% dplyr::select(Category, Sales, Region, Order_Date) %>% dplyr::filter(Region %in% input$selectedRegions5 | input$selectedRegions5 == "All") # %>% View()
     }
     })
   
   output$boxplotData1 <- renderDataTable({DT::datatable(df5(), rownames = FALSE,
-                                                  extensions = list(Responsive = TRUE, 
-                                                  FixedHeader = TRUE)
-    )
+                                                extensions = list(Responsive = TRUE, 
+                                                FixedHeader = TRUE)
+  )
+  })
+  
+  df6 <- eventReactive(input$range5, {
+    df5() %>% dplyr::filter(Sales >= input$range5[1] & Sales <= input$range5[2]) # %>% View()
   })
     
-  output$boxplotPlot1 <- renderPlotly({p <- ggplot(df5()) + 
+  output$boxplotPlot1 <- renderPlotly({p <- ggplot(df6()) + 
       geom_boxplot(aes(x=Category, y=Sales, colour=Region)) +
       theme(axis.text.x=element_text(angle=90, size=10, vjust=0.5))
     ggplotly(p)
