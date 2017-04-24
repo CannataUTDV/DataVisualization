@@ -37,12 +37,12 @@ dashboardPage(
                 ),
                 tabPanel("Simple Box Plot", 
                          sliderInput("boxSalesRange1", "Sales Range:", # See https://shiny.rstudio.com/articles/sliders.html
-                                     min = 0, max = max(globals$Sales), 
-                                     value = c(0, max(globals$Sales))),
+                                     min = min(globals$Sales), max = max(globals$Sales), 
+                                     value = c(min(globals$Sales), max(globals$Sales))),
                          sliderInput("range5a", "Looping Animation:", 
                                      min(globals$Order_Date), 
                                      max(globals$Order_Date) + .75, 
-                                     min(globals$Order_Date), 
+                                     max(globals$Order_Date), 
                                      step = 0.25,
                                      animate=animationOptions(interval=2000, loop=T)),
                          plotlyOutput("boxplotPlot1", height=500))

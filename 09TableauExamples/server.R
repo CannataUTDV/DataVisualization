@@ -234,7 +234,7 @@ shinyServer(function(input, output) {
   })
     
   output$boxplotPlot1 <- renderPlotly({
-    # View(dfbp3())
+    #View(dfbp3())
     p <- ggplot(dfbp3()) + 
       geom_boxplot(aes(x=Category, y=Sales, colour=Region)) + 
       ylim(0, input$boxSalesRange1[2]) +
