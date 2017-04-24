@@ -38,9 +38,9 @@ dashboardPage(
                 tabPanel("Simple Box Plot", 
                          sliderInput("boxSalesRange1", "Sales Range:", # See https://shiny.rstudio.com/articles/sliders.html
                                      min = 0, max = 100200, value = c(0,100200)),
-                         sliderInput("range5a", "Looping Animation:", 2010, 2013, 2010, 
-                                     step = 1,
-                                     animate=animationOptions(interval=5000, loop=T)),
+                         sliderInput("range5a", "Looping Animation:", 2010.0, 2013.75, 2010.0, 
+                                     step = 0.25,
+                                     animate=animationOptions(interval=2000, loop=T)),
                          plotlyOutput("boxplotPlot1", height=500))
               )
       ),

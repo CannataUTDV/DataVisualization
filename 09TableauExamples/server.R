@@ -230,13 +230,14 @@ shinyServer(function(input, output) {
   
   dfbp3 <- eventReactive(input$range5a, {
     print(input$range5a)
-    dfbp2() %>% dplyr::filter(lubridate::year(Order_Date) == input$range5a) %>% dplyr::arrange(desc(Order_Date)) # %>% View()
+    dfbp2() %>% dplyr::filter(lubridate::year(Order_Date) == as.integer(input$range5a) & lubridate::quarter(Order_Date) == (4 * (input$range5a - as.integer(input$range5a))) + 1) %>% dplyr::arrange(desc(Order_Date)) # %>% View()
   })
     
   output$boxplotPlot1 <- renderPlotly({
     # View(dfbp3())
     p <- ggplot(dfbp3()) + 
-      geom_boxplot(aes(x=Category, y=Sales, colour=Region)) +
+      geom_boxplot(aes(x=Category, y=Sales, colour=Region)) + 
+      ylim(0, input$boxSalesRange1[2]) +
       theme(axis.text.x=element_text(angle=90, size=10, vjust=0.5))
     ggplotly(p)
   })
