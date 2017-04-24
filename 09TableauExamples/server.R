@@ -179,7 +179,8 @@ if(online0) {
 shinyServer(function(input, output) {   
   # These widgets are for the Box Plots tab.
   online5 = reactive({input$rb5})
-  output$boxplotRegions <- renderUI({selectInput("selectedBoxplotRegions", "Choose Regions:", region_list5, multiple = TRUE, selected='All') })
+  output$boxplotRegions <- renderUI({selectInput("selectedBoxplotRegions", "Choose Regions:",
+                                                 region_list5, multiple = TRUE, selected='All') })
   
   # These widgets are for the Histogram tab.
   online4 = reactive({input$rb4})
@@ -198,7 +199,7 @@ shinyServer(function(input, output) {
   
   # Begin Box Plot Tab ------------------------------------------------------------------
   dfbp1 <- eventReactive(input$click5, {
-    if(input$selectedBoxplotRegions == 'All') region_list <- input$selectedBoxplotRegions
+    if(input$selectedBoxplotRegions == 'All') region_list5 <- input$selectedBoxplotRegions
     else region_list5 <- append(list("Skip" = "Skip"), input$selectedBoxplotRegions)
     if(online5() == "SQL") {
       print("Getting from data.world")
@@ -224,12 +225,11 @@ shinyServer(function(input, output) {
   )
   })
   
-  dfbp2 <- eventReactive(input$boxSalesRange1, {
+  dfbp2 <- eventReactive(c(input$click5, input$boxSalesRange1), {
     dfbp1() %>% dplyr::filter(Sales >= input$boxSalesRange1[1] & Sales <= input$boxSalesRange1[2]) # %>% View()
   })
   
-  dfbp3 <- eventReactive(input$range5a, {
-    print(input$range5a)
+  dfbp3 <- eventReactive(c(input$click5, input$range5a), {
     dfbp2() %>% dplyr::filter(lubridate::year(Order_Date) == as.integer(input$range5a) & lubridate::quarter(Order_Date) == (4 * (input$range5a - as.integer(input$range5a))) + 1) %>% dplyr::arrange(desc(Order_Date)) # %>% View()
   })
     
