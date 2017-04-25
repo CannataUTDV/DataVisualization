@@ -1,8 +1,8 @@
-#require(data.world)
 require(readr)
 require(dplyr)
+require(data.world)
 
-online0 = FALSE
+online0 = TRUE
 
 if(online0) {
   globals = query(

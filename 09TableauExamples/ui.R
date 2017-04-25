@@ -39,7 +39,7 @@ dashboardPage(
                          sliderInput("boxSalesRange1", "Sales Range:", # See https://shiny.rstudio.com/articles/sliders.html
                                      min = min(globals$Sales), max = max(globals$Sales), 
                                      value = c(min(globals$Sales), max(globals$Sales))),
-                         sliderInput("range5a", "Looping Animation:", 
+                         sliderInput("range5a", "Loop through Quarters:", 
                                      min(globals$Order_Date), 
                                      max(globals$Order_Date) + .75, 
                                      max(globals$Order_Date), 
