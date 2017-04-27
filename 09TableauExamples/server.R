@@ -12,6 +12,12 @@ require(lubridate)
 
 online0 = TRUE
 
+# Server.R structure:
+#   Queries that don’t need to be redone
+#   shinyServer
+#   widgets
+#   tab specific queries and plotting
+
 # The following query is for the select list in the Boxplots -> Simple Boxplot tab, and Barcharts -> Barchart with Table Calculation tab.
 if(online0) {
   regions = query(

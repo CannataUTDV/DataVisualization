@@ -1,4 +1,5 @@
 require(readr)
+require(lubridate)
 require(dplyr)
 require(data.world)
 
